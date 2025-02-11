@@ -2,11 +2,11 @@ const mongoose=require("mongoose")
 
 
 
-const signInSchema=new mongoose.Schema({
-    userName:{
+const userSchema=new mongoose.Schema({
+    
+    name:{
         type:String,
         required:true,
-        unique:true
     },
     email:{
         type:String,
@@ -16,10 +16,13 @@ const signInSchema=new mongoose.Schema({
     password:{
         type:String,
         required:true,
+    },
+    role:{
+        type:String,
     }
 },{timestamps:true})
 
 
-const USER=new mongoose.model("USER",signInSchema)
+const USER=new mongoose.model("USER",userSchema)
 
 module.exports=USER
