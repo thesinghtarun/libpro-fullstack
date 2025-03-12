@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const chalk=require("chalk")
 const cors=require("cors")
 const express = require("express");
-const { signUpController,loginController } = require("./controller/controller");
+const { signUpController,loginController, addBookController, addStudentController , showAllBooksController,showAllStudentsController} = require("./controller/controller");
 const app = express();
 
 const db = process.env.MONGODB;
@@ -27,4 +27,18 @@ app.listen(port, () => {
 app.post("/api/signUp", signUpController);
 
 //Sign In Route
-app.post("/api/login",loginController)
+app.post("/api/login",loginController);
+
+//Add Book Route
+app.post("/api/addBook",addBookController);
+
+//Add Student Route
+app.post("/api/addStudent",addStudentController);
+
+//show all books Route
+app.post("/api/showAllBooks",showAllBooksController);
+
+// show all students Route
+app.post("/api/showAllStudents",showAllStudentsController);
+
+

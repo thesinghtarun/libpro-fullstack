@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     BarItem(filledIcon: Icons.person, outlinedIcon: Icons.person_outline),
   ];
 
-  final List<BarItem> adminItems = [
+  final List<BarItem> librarianItems = [
     BarItem(filledIcon: Icons.home, outlinedIcon: Icons.home_outlined),
     BarItem(filledIcon: Icons.search, outlinedIcon: Icons.search_outlined),
     BarItem(filledIcon: Icons.map, outlinedIcon: Icons.map_outlined),
@@ -63,11 +63,11 @@ class _HomeScreenState extends State<HomeScreen> {
             onItemSelected: (index) => value.setIndex(index),
             selectedIndex: value.currentIndex,
             barItems:
-                value.loggedUserRole == "librarian" ? adminItems : studentItems,
+                value.loggedUserRole == "Librarian" ? librarianItems : studentItems,
           ),
           floatingActionButton: Consumer<AppController>(
             builder: (context, value, child) => Visibility(
-              visible: value.loggedUserRole == "librarian" ? true : false,
+              visible: value.loggedUserRole == "Librarian" ? true : false,
               child: FloatingActionButton(
                 onPressed: () => showOptionDialog(context),
                 child: const Icon(Icons.add),
