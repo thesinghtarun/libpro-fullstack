@@ -29,9 +29,7 @@ const signUpController=async (req, res) =>
       // Create and save new user
       const newUser = new USER({ name, email, password:hashedPassword,role});
       await newUser.save();
-  
-      console.log({name,email,password,role});
-      
+    
       res.status(201).json({ msg: "Registered successfully", user: { name, email } });
     } catch (e) {
       console.log(chalk.red("Something went wrong:", e));
@@ -68,7 +66,6 @@ const addBookController=async (req,res)=>{
       {bookName,bookCategory,bookCount,bookPublisher,bookEdition,bookPrice,bookPublishedYear,addedBy}
     )
     await books.save()
-    console.log(books)
     res.status(200).json({msg:"Book Added Successfully",books})
   } catch (error) {
     res.status(500).json({msg:error})
@@ -144,11 +141,61 @@ const showAllStudentsController = async (req, res) => {
 };
 
 //to get Librarian email
-const getLibrarianEmailController=(req,res)=>{
+const getLibrarianEmailController = async (req, res) => {
+  const { role, email } = req.body;
+  const student = await STUDENT.findOne({email});
+  
+  if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+  }
+  if (role !== "Student") {
+      return res.status(403).json({ message: "User role must be Student" });
+  }
+  res.json({ addedBy: student.addedBy });
+};
 
-}
+//update book vailablity controller
+const updateBookAvailablityController = async (req, res) => {
+  const { _id, bookAvailablity } = req.body;
+
+  try {
+    if (!_id || bookAvailablity === undefined) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+    const updatedBook = await BOOK.findByIdAndUpdate(
+      _id,
+      { $set: { bookAvailablity: bookAvailablity } }, 
+      { new: true } 
+    );
+
+    if (!updatedBook) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    res.json({ message: "Book availability updated", updatedBook });
+  } catch (error) {
+    console.error("Error updating book:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+//get book availablity
+const getBookAvailabilityController = async (req, res) => {
+  const { _id } = req.body;  // Read ID from request body
+  try {
+      const book = await BOOK.findById(_id);
+      if (!book) { 
+          return res.status(404).json({ message: "Book not found" });
+      }
+      res.status(200).json({msg:"Fetching done",bookAvailablity:book.bookAvailablity})
+  } catch (error) {
+      console.error("Error fetching book availability:", error);
+      res.status(500).json({ message: "Server error", error });
+  }
+};
+
 
 
 
 //exporting
-  module.exports={signUpController,loginController,addBookController,addStudentController,showAllBooksController,showAllStudentsController}
+  module.exports={signUpController,loginController,addBookController,addStudentController,showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController }

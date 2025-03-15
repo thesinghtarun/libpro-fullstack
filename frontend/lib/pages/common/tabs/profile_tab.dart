@@ -13,7 +13,9 @@ class ProfileTab extends StatelessWidget {
           child: Consumer<AppController>(
               builder: (context, value, child) => OutlinedButton(
                   onPressed: () {
-                    value.loggedInUserEmail = "";
+                    value.loggedInUserEmail = null;
+                    value.librarianEmail = null;
+                    value.loggedUserRole = null;
                     value.setIndex(0);
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (_) => const LoginScreen()));

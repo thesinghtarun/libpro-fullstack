@@ -30,25 +30,36 @@ class AppController extends ChangeNotifier {
     loggedInUserEmail = email;
 
     if (email.isEmpty || password.isEmpty) {
-      return print("Enter Credentials");
+      print("Enter Credentials");
+      return;
     }
+
     String loginApi = "${api}api/login";
     var url = Uri.parse(loginApi);
+
     try {
       var data = jsonEncode({"email": email, "password": password});
-      var res = await http.post(url,
-          headers: {"Content-Type": "application/json"}, body: data);
+      var res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: data,
+      );
+
       if (res.statusCode == 200 || res.statusCode == 201) {
         var userData = jsonDecode(res.body);
         loggedUserRole = userData["user"]["role"];
-        return Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()));
-      }
-      if (res.statusCode != 200 || res.statusCode != 201) {
-        return print(res.statusCode);
+        print("User Role: $loggedUserRole");
+        print("User Email: $loggedInUserEmail");
+        await getLibraianEmail();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        print("Login failed: ${res.statusCode} - ${res.body}");
       }
     } catch (e) {
-      return print("error occurred: $e");
+      print("Error occurred: $e");
     }
   }
 
@@ -184,7 +195,7 @@ class AppController extends ChangeNotifier {
       final res = await http.post(
         showAllBooksUrl,
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"addedBy": loggedInUserEmail}),
+        body: jsonEncode({"addedBy": librarianEmail ?? loggedInUserEmail}),
       );
 
       print("Response Status Code: ${res.statusCode}");
@@ -220,7 +231,6 @@ class AppController extends ChangeNotifier {
   List<dynamic>? qrResultData;
   String? qrResult;
   showQr() async {
-    // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       qrResult = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.QR);
@@ -269,6 +279,80 @@ class AppController extends ChangeNotifier {
       }
     } catch (e) {
       print("error while adding student $e");
+    }
+  }
+
+  //to get librarian Email
+  var librarianEmail;
+  Future<void> getLibraianEmail() async {
+    var data = jsonEncode({"role": loggedUserRole, "email": loggedInUserEmail});
+    var uri = "${api}api/fetchLibrarianEmail";
+    var url = Uri.parse(uri);
+
+    try {
+      var res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: data,
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        var responseBody = jsonDecode(res.body);
+        librarianEmail = responseBody["addedBy"];
+        print(librarianEmail);
+      } else {
+        print("Error: ${res.statusCode} - ${res.body}");
+      }
+    } catch (e) {
+      print("Error occurred: $e");
+    }
+  }
+
+  //book availablity
+  bool isBookAvailable = true;
+  void toggleBookAvailablity() {
+    isBookAvailable = !isBookAvailable;
+    notifyListeners();
+  }
+
+  //to update in db
+  Future<void> updateAvailablityInDb(bookId, bookAvailablity) async {
+    var uri = "${api}api/updateBookavailablity";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"_id": bookId, "bookAvailablity": bookAvailablity});
+    try {
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        print("Availablity updation Done");
+        var bookData = jsonDecode(res.body);
+        isBookAvailable = bookData["updatedBook"]["bookAvailablity"];
+        notifyListeners();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //get book Availablity from Db
+  Future<void> getBookAvailablityFromDb(bookId) async {
+    var uri = "${api}api/getBookAvailablity/";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"_id": bookId});
+    try {
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
+
+      if (res.statusCode == 200) {
+        var bookData = jsonDecode(res.body);
+        print("trye: $bookData");
+        isBookAvailable = bookData["bookAvailablity"];
+        notifyListeners();
+      } else {
+        print("Failed to fetch book availability: ${res.body}");
+      }
+    } catch (e) {
+      print("Error fetching book availability: $e");
     }
   }
 }

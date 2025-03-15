@@ -80,7 +80,17 @@ class HomeTab extends StatelessWidget {
                         final item = data[index];
 
                         return InkWell(
-                          onTap: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>value.loggedUserRole=="Librarian"?StudentDetails(studentData: data,):BookDetails(bookData: data,))),
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      value.loggedUserRole == "Librarian"
+                                          ? StudentDetails(
+                                              studentData: data,
+                                            )
+                                          : BookDetails(
+                                              bookData: data,
+                                            ))),
                           child: Container(
                             width: MediaQuery.of(context).size.width * 0.75,
                             padding: const EdgeInsets.all(10),
@@ -175,36 +185,52 @@ class HomeTab extends StatelessWidget {
                           final item = data[index];
 
                           return SizedBox(
-                            width: 200, // Ensure consistent width
-                            child: Card(
-                              color: Colors.red,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "${item["bookName"] ?? "Unnamed"}",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.center,
+                            width: 200,
+                            child: Consumer<AppController>(
+                              builder: (context, value, child) => InkWell(
+                                onTap: () async {
+                                  await value
+                                      .getBookAvailablityFromDb(item["_id"]);
+                                  print("id: ${item["_id"]}");
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => BookDetails(
+                                                bookData: item,
+                                              )));
+                                },
+                                child: Card(
+                                  color: Colors.red,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "${item["bookName"] ?? "Unnamed"}",
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          "Category: ${item["bookCategory"] ?? "Unknown"}",
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 16,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      "Category: ${item["bookCategory"] ?? "Unknown"}",
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),

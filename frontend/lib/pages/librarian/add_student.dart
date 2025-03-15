@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:libpro/pages/librarian/functionality/qr_data.dart';
 import 'package:libpro/provider/app_controller.dart';
@@ -112,24 +115,30 @@ class AddStudent extends StatelessWidget {
                 child: const Text("Add Student"),
               ),
             ),
-            const Row(
-              children: [
-                Expanded(child: Divider()),
-                Text("or"),
-                Expanded(child: Divider())
-              ],
+             Visibility(
+               visible: !kIsWeb && (Platform.isAndroid || Platform.isIOS)?true:false,
+              child: const Row(
+                children: [
+                  Expanded(child: Divider()),
+                  Text("or"),
+                  Expanded(child: Divider())
+                ],
+              ),
             ),
             const SizedBox(
               height: 5,
             ),
-            Consumer<AppController>(
-              builder: (context, value, child) => OutlinedButton(
-                  onPressed: () {
-                    value.requestCameraPermission();
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const QrData()));
-                  },
-                  child: const Text("Scan Qr")),
+            Visibility(
+              visible: !kIsWeb && (Platform.isAndroid || Platform.isIOS)?true:false,
+              child: Consumer<AppController>(
+                builder: (context, value, child) => OutlinedButton(
+                    onPressed: () {
+                      value.requestCameraPermission();
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const QrData()));
+                    },
+                    child: const Text("Scan Qr")),
+              ),
             )
           ],
         ),

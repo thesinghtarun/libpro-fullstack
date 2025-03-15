@@ -33,6 +33,9 @@ const addbookSchema=new mongoose.Schema({
     addedBy:{
         type:String,
         required:true
+    },bookAvailablity:{
+        type:Boolean,
+        default:true
     }
 
 },{timestamps:true})

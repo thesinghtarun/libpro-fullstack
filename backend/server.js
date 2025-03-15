@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const chalk=require("chalk")
 const cors=require("cors")
 const express = require("express");
-const { signUpController,loginController, addBookController, addStudentController , showAllBooksController,showAllStudentsController} = require("./controller/controller");
+const { signUpController,loginController, addBookController, addStudentController , showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController} = require("./controller/controller");
 const app = express();
 
 const db = process.env.MONGODB;
@@ -40,5 +40,14 @@ app.post("/api/showAllBooks",showAllBooksController);
 
 // show all students Route
 app.post("/api/showAllStudents",showAllStudentsController);
+
+//fetch librarian email Route
+app.post("/api/fetchLibrarianEmail",getLibrarianEmailController);
+
+//update book availablity Route
+app.post("/api/updateBookavailablity",updateBookAvailablityController);
+
+//fetch book availablity Route
+app.post("/api/getBookAvailablity",getBookAvailabilityController);
 
 
