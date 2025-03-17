@@ -1,0 +1,83 @@
+import 'package:flutter/material.dart';
+import 'package:libpro/pages/librarian/functionality/show_each_req_qr.dart';
+import 'package:libpro/pages/student/scan_qr_to_accpt_book.dart';
+import 'package:libpro/provider/app_controller.dart';
+import 'package:provider/provider.dart';
+
+class ShowAllRequest extends StatefulWidget {
+  const ShowAllRequest({super.key});
+
+  @override
+  _ShowAllRequestState createState() => _ShowAllRequestState();
+}
+
+class _ShowAllRequestState extends State<ShowAllRequest> {
+  late AppController appController;
+  late Future<void> fetchDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    appController = Provider.of<AppController>(context, listen: false);
+    fetchDataFuture = appController.loggedUserRole == "Librarian"
+        ? appController.getAllReqBook()
+        : appController.getReqBookByStudent(appController.loggedInUserEmail);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("All Requested Books")),
+      body: FutureBuilder(
+        future: fetchDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+
+          return Consumer<AppController>(
+            builder: (context, value, child) {
+              var bookRequests = appController.loggedUserRole == "Librarian"
+                  ? value.allRequestedBookData
+                  : value.allReqDoneByStudent;
+
+              if (bookRequests.isEmpty) {
+                return const Center(child: Text("No book requests found"));
+              }
+
+              return ListView.builder(
+                itemCount: bookRequests.length,
+                itemBuilder: (context, index) {
+                  var request = bookRequests[index];
+                  return InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            appController.loggedUserRole == "Student"
+                                ? const ScanQrToAccptBook()
+                                : ShowEachRequestQr(bookReqData: request),
+                      ),
+                    ),
+                    child: Card(
+                      elevation: 1,
+                      child: ListTile(
+                        title: Text(request['bookName']),
+                        subtitle:
+                            Text("Requested by: ${request['studentEmail']}"),
+                        trailing: Text("Days: ${request['days']}"),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}

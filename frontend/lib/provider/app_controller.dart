@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, prefer_typing_uninitialized_variables, avoid_print
 
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +16,8 @@ class AppController extends ChangeNotifier {
   var loggedUserRole;
   var studentData;
   var bookData;
+  var loggedInUserData;
+
   //to change index of homeScreen
   int _currentIndex = 0;
 
@@ -48,13 +51,16 @@ class AppController extends ChangeNotifier {
       if (res.statusCode == 200 || res.statusCode == 201) {
         var userData = jsonDecode(res.body);
         loggedUserRole = userData["user"]["role"];
+        loggedInUserData = userData["user"];
         print("User Role: $loggedUserRole");
-        print("User Email: $loggedInUserEmail");
+        print("User Email: $loggedInUserData");
         await getLibraianEmail();
+        print("userData: $userData");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
+        notifyListeners();
       } else {
         print("Login failed: ${res.statusCode} - ${res.body}");
       }
@@ -152,7 +158,7 @@ class AppController extends ChangeNotifier {
             "Content-Type": "application/json",
           },
           body: data);
-      print(data);
+      // print(data);
       if (res.statusCode == 200 || res.statusCode == 201) {
         print(jsonDecode(res.body));
       }
@@ -198,8 +204,8 @@ class AppController extends ChangeNotifier {
         body: jsonEncode({"addedBy": librarianEmail ?? loggedInUserEmail}),
       );
 
-      print("Response Status Code: ${res.statusCode}");
-      print("Response Body: ${res.body}"); // Log full response
+      // print("Response Status Code: ${res.statusCode}");
+      // print("Response Body: ${res.body}"); // Log full response
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         List<dynamic> data = jsonDecode(res.body);
@@ -227,10 +233,10 @@ class AppController extends ChangeNotifier {
     }
   }
 
-  //qrCode
+  //qrCode scanner to add student
   List<dynamic>? qrResultData;
   String? qrResult;
-  showQr() async {
+  showQrScannerToAddStudent() async {
     try {
       qrResult = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.QR);
@@ -244,7 +250,24 @@ class AppController extends ChangeNotifier {
     }
   }
 
-//temp addStudent
+//qr scanner to accpt book
+  String? qrResultToAccptBook;
+  List<dynamic>? qrResultDataToAccptBook;
+  showQrScannerToAccptBook() async {
+    try {
+      qrResultToAccptBook = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.QR);
+      if (qrResultToAccptBook != null || qrResultToAccptBook!.isNotEmpty) {
+        qrResultDataToAccptBook = qrResultToAccptBook!.split(",");
+      }
+      notifyListeners();
+    } on PlatformException {
+      qrResultToAccptBook = 'Failed to get platform version.';
+      notifyListeners();
+    }
+  }
+
+//addStudent using qr
   qrAddStudent(String addedBy) async {
     var addStudentUrl = "${api}api/addStudent";
     String password = "Welcome";
@@ -353,6 +376,90 @@ class AppController extends ChangeNotifier {
       }
     } catch (e) {
       print("Error fetching book availability: $e");
+    }
+  }
+
+  //to change theme
+  bool day = true;
+  bool isImageVisible = false;
+  ThemeMode themeMode = ThemeMode.light;
+  void changeTheme() {
+    Timer(const Duration(seconds: 3), () {
+      isImageVisible = false;
+      notifyListeners();
+    });
+    day = !day;
+    themeMode = themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    isImageVisible = true; // Show the image
+    notifyListeners();
+  }
+
+  //to req book
+
+  Future<void> reqBook(bookId, bookName, bookCategory, bookPublisher,
+      bookEdition, bookPrice, bookPublishedYear, studentEmail, days) async {
+    var uri = "${api}api/requestBook";
+    var url = Uri.parse(uri);
+    try {
+      var data = jsonEncode({
+        "bookId": bookId,
+        "bookName": bookName,
+        "bookCategory": bookCategory,
+        "bookPublisher": bookPublisher,
+        "bookEdition": bookEdition,
+        "bookPrice": bookPrice,
+        "bookPublishedYear": bookPublishedYear,
+        "studentEmail": studentEmail,
+        "days": days
+      });
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final reqBookData = jsonDecode(res.body);
+        if (reqBookData != null) {
+          print(reqBookData);
+          notifyListeners();
+        }
+        notifyListeners();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //to show all request
+  var allRequestedBookData;
+  Future<void> getAllReqBook() async {
+    var uri = "${api}api/getAllReqBook";
+    var url = Uri.parse(uri);
+    try {
+      var res = await http.get(url);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        var reqBookData = jsonDecode(res.body);
+        allRequestedBookData = reqBookData["requestedBook"];
+        notifyListeners();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //to show reqested book to student
+  var allReqDoneByStudent;
+  Future<void> getReqBookByStudent(studentEmail) async {
+    var uri = "${api}api/getReqBookForStudent";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"studentEmail":studentEmail});
+    try {
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        var bookData = jsonDecode(res.body);
+        allReqDoneByStudent = bookData["requestedBook"];
+      }
+      notifyListeners();
+    } catch (e) {
+      print(e);
     }
   }
 }

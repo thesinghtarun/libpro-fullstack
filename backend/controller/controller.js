@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const USER = require("../models/user.models");
 const BOOK = require("../models/add_book.models");
 const STUDENT=require("../models/add_student.models");
+const REQBOOK = require("../models/req_book.models");
 
 
 
@@ -179,7 +180,7 @@ const updateBookAvailablityController = async (req, res) => {
   }
 };
 
-//get book availablity
+//get book availablity controller
 const getBookAvailabilityController = async (req, res) => {
   const { _id } = req.body;  // Read ID from request body
   try {
@@ -194,8 +195,47 @@ const getBookAvailabilityController = async (req, res) => {
   }
 };
 
+//request book controller
+const reqBookController=async (req,res)=>{
+  const {bookId,bookName,bookCategory,bookPublisher,bookEdition,bookPrice,bookPublishedYear,studentEmail,days}=req.body
+  try {
+    const reqBook=await new REQBOOK({
+      bookId,
+      bookName,
+      bookCategory,
+      bookPublisher,
+      bookEdition,
+      bookPrice,
+      bookPublishedYear,
+      studentEmail,
+      days
+    })
+    const reqBookData=await reqBook.save()
+    res.status(200).json({msg:"Request sent","reqBookData":reqBookData})
+  } catch (error) {
+    res.status(500).json({msg:error})
+  }
+}
 
+//fetch all request controller
+const showAllBookReqController=async (req,res)=>{
+  try {
+    const reqestedBook=await REQBOOK.find()
+    res.status(200).json({"requestedBook":reqestedBook})
+  } catch (error) {
+    res.status(500).json({"error":error})
+  }
+}
 
-
+//fetch single req 
+const showReqBookForStudent=async (req,res)=>{
+  try {
+    const {studentEmail}=req.body
+    const reqestedBook=await REQBOOK.find({studentEmail})
+    res.status(200).json({"requestedBook":reqestedBook})
+  } catch (error) {
+    res.status(500).json({"error":error})
+  }
+}
 //exporting
-  module.exports={signUpController,loginController,addBookController,addStudentController,showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController }
+  module.exports={signUpController,loginController,addBookController,addStudentController,showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController ,reqBookController,showAllBookReqController,showReqBookForStudent}

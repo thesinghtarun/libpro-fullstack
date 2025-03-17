@@ -12,8 +12,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => AppController(),
-      child: const MaterialApp(
-        home: LoginScreen(),
+      child:  Consumer<AppController>(
+        builder: (context, value, child) =>  MaterialApp(
+           theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            themeMode: value.themeMode,
+          home: LoginScreen(),
+        ),
       ),
     );
   }

@@ -35,14 +35,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<BarItem> studentItems = [
     BarItem(filledIcon: Icons.home, outlinedIcon: Icons.home_outlined),
-    BarItem(filledIcon: Icons.search, outlinedIcon: Icons.search_outlined),
+    BarItem(
+        filledIcon: CupertinoIcons.search_circle_fill,
+        outlinedIcon: CupertinoIcons.search_circle),
     BarItem(filledIcon: CupertinoIcons.book, outlinedIcon: CupertinoIcons.book),
     BarItem(filledIcon: Icons.person, outlinedIcon: Icons.person_outline),
   ];
 
   final List<BarItem> librarianItems = [
     BarItem(filledIcon: Icons.home, outlinedIcon: Icons.home_outlined),
-    BarItem(filledIcon: Icons.search, outlinedIcon: Icons.search_outlined),
+    BarItem(
+        filledIcon: CupertinoIcons.search_circle_fill,
+        outlinedIcon: CupertinoIcons.search_circle),
     BarItem(filledIcon: Icons.map, outlinedIcon: Icons.map_outlined),
     BarItem(filledIcon: Icons.person, outlinedIcon: Icons.person_outline),
   ];
@@ -58,12 +62,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 : studentScreens,
           ),
           bottomNavigationBar: WaterDropNavBar(
-            backgroundColor: Colors.lightBlueAccent,
-            waterDropColor: Colors.white,
+            bottomPadding: 10,
+            backgroundColor: Colors.transparent,
+            waterDropColor: value.day ? Colors.blueAccent : Colors.purpleAccent,
             onItemSelected: (index) => value.setIndex(index),
             selectedIndex: value.currentIndex,
-            barItems:
-                value.loggedUserRole == "Librarian" ? librarianItems : studentItems,
+            barItems: value.loggedUserRole == "Librarian"
+                ? librarianItems
+                : studentItems,
           ),
           floatingActionButton: Consumer<AppController>(
             builder: (context, value, child) => Visibility(
