@@ -261,10 +261,18 @@ class AppController extends ChangeNotifier {
         qrResultDataToAccptBook = qrResultToAccptBook!.split(",");
       }
       notifyListeners();
+      print("qrResultDataReq: $qrResultDataToAccptBook ");
     } on PlatformException {
       qrResultToAccptBook = 'Failed to get platform version.';
       notifyListeners();
     }
+  }
+
+  //to resetQrData
+  void resetQrDataToAccptBook() {
+    qrResultToAccptBook = null;
+    qrResultDataToAccptBook = null;
+    notifyListeners();
   }
 
 //addStudent using qr
@@ -396,8 +404,17 @@ class AppController extends ChangeNotifier {
 
   //to req book
 
-  Future<void> reqBook(bookId, bookName, bookCategory, bookPublisher,
-      bookEdition, bookPrice, bookPublishedYear, studentEmail, days) async {
+  Future<void> reqBook(
+      bookId,
+      bookName,
+      bookCategory,
+      bookPublisher,
+      bookEdition,
+      bookPrice,
+      bookPublishedYear,
+      studentEmail,
+      addedBy,
+      days) async {
     var uri = "${api}api/requestBook";
     var url = Uri.parse(uri);
     try {
@@ -410,6 +427,7 @@ class AppController extends ChangeNotifier {
         "bookPrice": bookPrice,
         "bookPublishedYear": bookPublishedYear,
         "studentEmail": studentEmail,
+        "addedBy": addedBy,
         "days": days
       });
       var res = await http.post(url,
@@ -429,11 +447,12 @@ class AppController extends ChangeNotifier {
 
   //to show all request
   var allRequestedBookData;
-  Future<void> getAllReqBook() async {
-    var uri = "${api}api/getAllReqBook";
+  Future<void> getPendingReqBook() async {
+    var uri = "${api}api/getPendingReqBook";
     var url = Uri.parse(uri);
+    var data=jsonEncode({"addedBy":loggedInUserEmail});
     try {
-      var res = await http.get(url);
+      var res = await http.post(url, headers: {"Content-Type":"application/json"},body: data);
       if (res.statusCode == 200 || res.statusCode == 201) {
         var reqBookData = jsonDecode(res.body);
         allRequestedBookData = reqBookData["requestedBook"];
@@ -446,10 +465,10 @@ class AppController extends ChangeNotifier {
 
   //to show reqested book to student
   var allReqDoneByStudent;
-  Future<void> getReqBookByStudent(studentEmail) async {
+  Future<void> getReqBookByStudent(String studentEmail) async {
     var uri = "${api}api/getReqBookForStudent";
     var url = Uri.parse(uri);
-    var data = jsonEncode({"studentEmail":studentEmail});
+    var data = jsonEncode({"studentEmail": studentEmail});
     try {
       var res = await http.post(url,
           headers: {"Content-Type": "application/json"}, body: data);
@@ -461,5 +480,30 @@ class AppController extends ChangeNotifier {
     } catch (e) {
       print(e);
     }
+  }
+
+  //update status to accepted or deny
+  Future<void> handleBookRequest(String reqBookId, String status) async {
+    var uri = "${api}api/updateBookRequestStatus";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"requestId": reqBookId, "status": status});
+    try {
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        print("Status updated");
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //reset everything for new login
+  void logoutToReset() {
+    loggedInUserEmail = null;
+    librarianEmail = null;
+    loggedUserRole = null;
+    setIndex(0);
+    notifyListeners();
   }
 }

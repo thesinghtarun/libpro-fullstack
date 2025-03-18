@@ -33,9 +33,13 @@ const reqBookSchema=new mongoose.Schema({
         type:String,
         required:true
     },
+    addedBy:{
+        type:String,
+        required:true
+    },
     status:{
         type: String,
-        enum: ["pending", "approved", "rejected"],
+        enum: ["pending", "accepted", "rejected"],
         default: "pending"
     },
     days:{

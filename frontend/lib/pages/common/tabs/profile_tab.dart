@@ -73,10 +73,7 @@ class ProfileTab extends StatelessWidget {
                   children: [
                     OutlinedButton(
                         onPressed: () {
-                          value.loggedInUserEmail = null;
-                          value.librarianEmail = null;
-                          value.loggedUserRole = null;
-                          value.setIndex(0);
+                          value.logoutToReset();
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -99,8 +96,6 @@ class ProfileTab extends StatelessWidget {
                         MaterialPageRoute(
                             builder: (_) => const ShowAllRequest())),
                     child: const Text("Show All Request")),
-
-
               ],
             ),
           ),

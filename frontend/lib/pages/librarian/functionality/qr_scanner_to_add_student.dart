@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:libpro/provider/app_controller.dart';
 import 'package:provider/provider.dart';
 
-class QrData extends StatelessWidget {
-  const QrData({super.key});
+class QrScannerToAddStudent extends StatelessWidget {
+  const QrScannerToAddStudent({super.key});
 
   @override
   Widget build(BuildContext context) {

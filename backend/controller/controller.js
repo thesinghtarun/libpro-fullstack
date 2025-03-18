@@ -197,7 +197,7 @@ const getBookAvailabilityController = async (req, res) => {
 
 //request book controller
 const reqBookController=async (req,res)=>{
-  const {bookId,bookName,bookCategory,bookPublisher,bookEdition,bookPrice,bookPublishedYear,studentEmail,days}=req.body
+  const {bookId,bookName,bookCategory,bookPublisher,bookEdition,bookPrice,bookPublishedYear,studentEmail,addedBy,days}=req.body
   try {
     const reqBook=await new REQBOOK({
       bookId,
@@ -208,6 +208,7 @@ const reqBookController=async (req,res)=>{
       bookPrice,
       bookPublishedYear,
       studentEmail,
+      addedBy,
       days
     })
     const reqBookData=await reqBook.save()
@@ -218,9 +219,13 @@ const reqBookController=async (req,res)=>{
 }
 
 //fetch all request controller
-const showAllBookReqController=async (req,res)=>{
+const showPendingBookReqController=async (req,res)=>{
   try {
-    const reqestedBook=await REQBOOK.find()
+    const {addedBy}=req.body
+    const reqestedBook=await REQBOOK.find({
+      addedBy:addedBy,
+      status:"pending"})
+    
     res.status(200).json({"requestedBook":reqestedBook})
   } catch (error) {
     res.status(500).json({"error":error})
@@ -228,14 +233,50 @@ const showAllBookReqController=async (req,res)=>{
 }
 
 //fetch single req 
-const showReqBookForStudent=async (req,res)=>{
+const showReqBookForStudent = async (req, res) => {
   try {
-    const {studentEmail}=req.body
-    const reqestedBook=await REQBOOK.find({studentEmail})
-    res.status(200).json({"requestedBook":reqestedBook})
+    const { studentEmail } = req.body;
+
+    // ✅ Directly filter by studentEmail and pending status in a single query
+    const requestedBook = await REQBOOK.find({
+      studentEmail: studentEmail, 
+      status: "pending"
+    });
+
+    res.status(200).json({ requestedBook });
   } catch (error) {
-    res.status(500).json({"error":error})
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
+
+
+
+
+//accpt/deny request for book
+const updateBookRequestStatus = async (req, res) => {
+  const { requestId, status } = req.body; // Expecting requestId and status from frontend
+
+  if (!["accepted", "rejected"].includes(status)) {
+    return res.status(400).json({ msg: "Invalid status value" });
+  }
+
+  try {
+    const updatedRequest = await REQBOOK.findByIdAndUpdate(
+      requestId,
+      { status: status },
+      { new: true } // Return updated document
+    );
+
+    if (!updatedRequest) {
+      return res.status(404).json({ msg: "Request not found" });
+    }
+
+    res.status(200).json({ msg: `Request ${status} successfully`, updatedRequest });
+  } catch (error) {
+    res.status(500).json({ msg: "Server error", error });
+  }
+};
+
 //exporting
-  module.exports={signUpController,loginController,addBookController,addStudentController,showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController ,reqBookController,showAllBookReqController,showReqBookForStudent}
+  module.exports={signUpController,loginController,addBookController,addStudentController,showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController ,reqBookController,showAllBookReqController: showPendingBookReqController,showReqBookForStudent,updateBookRequestStatus}

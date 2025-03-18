@@ -238,7 +238,9 @@ class BookDetails extends StatelessWidget {
                     bookData["bookPrice"],
                     bookData["bookPublishedYear"],
                     value.loggedInUserEmail,
+                    value.loggedUserRole=="Student"?value.librarianEmail:value.loggedInUserEmail,
                     daysController.text);
+                Navigator.pop(context);
                 Navigator.pop(context);
               },
               child: const Text("Ask for Book"),

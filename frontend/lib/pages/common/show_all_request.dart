@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:libpro/pages/librarian/functionality/show_each_req_qr.dart';
+import 'package:libpro/pages/librarian/functionality/show_qr_for_book_req.dart';
 import 'package:libpro/pages/student/scan_qr_to_accpt_book.dart';
 import 'package:libpro/provider/app_controller.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +20,7 @@ class _ShowAllRequestState extends State<ShowAllRequest> {
     super.initState();
     appController = Provider.of<AppController>(context, listen: false);
     fetchDataFuture = appController.loggedUserRole == "Librarian"
-        ? appController.getAllReqBook()
+        ? appController.getPendingReqBook()
         : appController.getReqBookByStudent(appController.loggedInUserEmail);
   }
 
@@ -51,18 +51,33 @@ class _ShowAllRequestState extends State<ShowAllRequest> {
               return ListView.builder(
                 itemCount: bookRequests.length,
                 itemBuilder: (context, index) {
-                  var request = bookRequests[index];
+                  
+                var request = bookRequests[index];
                   return InkWell(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            appController.loggedUserRole == "Student"
-                                ? const ScanQrToAccptBook()
-                                : ShowEachRequestQr(bookReqData: request),
-                      ),
-                    ),
-                    child: Card(
+                    onTap: () {
+                      if (appController.loggedUserRole == "Student") {
+                        appController.resetQrDataToAccptBook();
+                        appController.requestCameraPermission();
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ScanQrToAccptBook(bookReq: request),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ShowQrForBookReq(bookReqData: request),
+                          ),
+                        );
+                      }
+                    },
+                    child:
+                   
+                     Card(
                       elevation: 1,
                       child: ListTile(
                         title: Text(request['bookName']),
