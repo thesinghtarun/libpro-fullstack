@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const chalk=require("chalk")
 const cors=require("cors")
 const express = require("express");
-const { signUpController,loginController, addBookController, addStudentController , showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController, reqBookController,showAllBookReqController: showPendingBookReqController,showReqBookForStudent,updateBookRequestStatus} = require("./controller/controller");
+const { signUpController,loginController, addBookController, addStudentController , showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController, reqBookController, showPendingBookReqController,showReqBookForStudent,updateBookRequestStatus,decreaseBookCount,fetchCategory,fetchBookBasedOnCategory} = require("./controller/controller");
 const app = express();
 
 const db = process.env.MONGODB;
@@ -62,5 +62,11 @@ app.post("/api/getReqBookForStudent",showReqBookForStudent);
 //to update status of req book Route
 app.post("/api/updateBookRequestStatus",updateBookRequestStatus);
 
-//to add accepted book data to db Route
-// app.post("/api/acceptedReqForBook",acceptedRequestForBook);
+// to decrease book count when accepted Route
+app.post("/api/decreaseBookCount",decreaseBookCount);
+
+//to fetch all category of book Route
+app.post("/api/fetchBookCategory",fetchCategory);
+
+//to fetch all book based on same librarian and category Route
+app.post("/api/fetchBookBasedOnCategory",fetchBookBasedOnCategory);

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:libpro/provider/app_controller.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ShowQrForBookReq extends StatelessWidget {
@@ -32,6 +34,7 @@ class ShowQrForBookReq extends StatelessWidget {
     final bookReqDataValue = _normalizeData(bookReqData);
 
     return Scaffold(
+      appBar: AppBar(title: Text(bookReqData["bookName"]),),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -41,11 +44,27 @@ class ShowQrForBookReq extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             QrImageView(
-              data: bookReqDataValue.join(', '),  // Flattened & trimmed list as string
+              data: bookReqDataValue
+                  .join(', '), // Flattened & trimmed list as string
               version: QrVersions.auto,
               size: 200.0,
             ),
-          
+            const SizedBox(
+              height: 15,
+            ),
+            Consumer<AppController>(
+                builder: (context, value, child) => OutlinedButton(
+                    onPressed: () {
+                       print("qrScannedData: ${bookReqDataValue.toString()}");
+                      value.revealQrData();
+                    },
+                    child: const Text("Show Data"))),
+            Consumer<AppController>(
+                builder: (context, value, child) =>Visibility(
+                visible: value.showData?true:false,
+                child: Text(bookReqDataValue.isEmpty
+                    ? "Data will show here"
+                    : bookReqDataValue.toString()))),
           ],
         ),
       ),

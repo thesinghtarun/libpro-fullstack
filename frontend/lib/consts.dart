@@ -1,3 +1,3 @@
-import 'package:flutter/foundation.dart';
-
-const api = "http://192.168.222.242:3000/";
+const api = "http://192.168.1.184:3000/";
+// 192.168.1.112
+// 192.168.1.184

@@ -24,6 +24,7 @@ class AddBook extends StatelessWidget {
         child: Column(
           children: [
             TextField(
+              autofocus: true,
               controller: bookNameController,
               decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.book),
@@ -105,7 +106,7 @@ class AddBook extends StatelessWidget {
                   onPressed: () {
                     value.addBook(
                         bookNameController.text.toString().trim(),
-                        bookCategoryController.text.toString().trim(),
+                        bookCategoryController.text.toString().trim().toLowerCase(),
                         int.parse(bookCountController.text.trim()),
                         bookPublisherController.text.toString().trim(),
                         bookEditionController.text.toString().trim(),

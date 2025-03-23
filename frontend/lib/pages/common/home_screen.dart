@@ -38,7 +38,9 @@ class _HomeScreenState extends State<HomeScreen> {
     BarItem(
         filledIcon: CupertinoIcons.search_circle_fill,
         outlinedIcon: CupertinoIcons.search_circle),
-    BarItem(filledIcon: CupertinoIcons.book, outlinedIcon: CupertinoIcons.book),
+    BarItem(
+        filledIcon: CupertinoIcons.book_fill,
+        outlinedIcon: CupertinoIcons.book),
     BarItem(filledIcon: Icons.person, outlinedIcon: Icons.person_outline),
   ];
 

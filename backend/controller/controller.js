@@ -4,6 +4,7 @@ const USER = require("../models/user.models");
 const BOOK = require("../models/add_book.models");
 const STUDENT=require("../models/add_student.models");
 const REQBOOK = require("../models/req_book.models");
+const BOOKCATEGORY = require("../models/book_category.models");
 
 
 
@@ -67,6 +68,21 @@ const addBookController=async (req,res)=>{
       {bookName,bookCategory,bookCount,bookPublisher,bookEdition,bookPrice,bookPublishedYear,addedBy}
     )
     await books.save()
+    const existingCategory = await BOOKCATEGORY.findOne({
+      bookCategory,
+      addedBy,
+    });
+
+    if (!existingCategory) {
+      // Add new category if it doesn't exist
+      await BOOKCATEGORY.create({
+        bookCategory,
+        addedBy,
+      });
+      console.log(`Category "${bookCategory}" added by "${addedBy}"`);
+    } else {
+      console.log(`Category "${bookCategory}" already exists`);
+    }
     res.status(200).json({msg:"Book Added Successfully",books})
   } catch (error) {
     res.status(500).json({msg:error})
@@ -209,7 +225,7 @@ const reqBookController=async (req,res)=>{
       bookPublishedYear,
       studentEmail,
       addedBy,
-      days
+      days,
     })
     const reqBookData=await reqBook.save()
     res.status(200).json({msg:"Request sent","reqBookData":reqBookData})
@@ -235,12 +251,12 @@ const showPendingBookReqController=async (req,res)=>{
 //fetch single req 
 const showReqBookForStudent = async (req, res) => {
   try {
-    const { studentEmail } = req.body;
+    const { studentEmail,status } = req.body;
 
     // ✅ Directly filter by studentEmail and pending status in a single query
     const requestedBook = await REQBOOK.find({
       studentEmail: studentEmail, 
-      status: "pending"
+      status: status
     });
 
     res.status(200).json({ requestedBook });
@@ -278,5 +294,64 @@ const updateBookRequestStatus = async (req, res) => {
   }
 };
 
+//decrease book count
+const decreaseBookCount=async (req,res)=>{
+  const {bookId}=req.body
+  try {
+    const book=await BOOK.findById(bookId)
+    if(!bookId){
+     return res.status(404).json({msg:"Book Not found"})
+    }
+    if (book.bookCount > 0) {
+      book.bookCount -= 1;
+      await book.save();
+      return res.status(200).json({ message: 'Book count decreased by 1', count: book.count });
+    } else {
+      return res.status(400).json({ message: 'No more copies available' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+//to fetch all category of book
+const fetchCategory=async (req,res)=>{
+  const{addedBy}=req.body
+  try {
+    var bookCategory=await BOOKCATEGORY.find({addedBy})
+    if(!bookCategory){
+      res.status(400).json({msg:"No category found"})
+    }
+    res.status(200).json({"bookCategory":bookCategory})
+  } catch (error) {
+    res.status(500).json({msg:error})
+  }
+};
+
+
+  //to fetch book based on category and same librarian
+  const fetchBookBasedOnCategory = async (req, res) => {
+    const { addedBy, bookCategory } = req.body;
+
+    try {
+        const bookData = await BOOK.find({ addedBy, bookCategory });
+
+        // ✅ Properly handle empty results
+        if (bookData.length === 0) {
+            return res.status(404).json({ msg: "No books found" });
+        }
+
+        // ✅ Return the list directly
+        res.status(200).json(bookData);
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+
+
 //exporting
-  module.exports={signUpController,loginController,addBookController,addStudentController,showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController ,reqBookController,showAllBookReqController: showPendingBookReqController,showReqBookForStudent,updateBookRequestStatus}
+  module.exports={signUpController,loginController,addBookController,addStudentController,showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController ,reqBookController,showPendingBookReqController,showReqBookForStudent,updateBookRequestStatus,decreaseBookCount,fetchCategory,fetchBookBasedOnCategory}

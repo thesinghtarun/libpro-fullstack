@@ -216,6 +216,7 @@ class BookDetails extends StatelessWidget {
             style: TextStyle(fontSize: 14),
           ),
           content: TextField(
+            autofocus: true,
             controller: daysController,
             decoration: InputDecoration(
               border: OutlineInputBorder(
@@ -238,7 +239,9 @@ class BookDetails extends StatelessWidget {
                     bookData["bookPrice"],
                     bookData["bookPublishedYear"],
                     value.loggedInUserEmail,
-                    value.loggedUserRole=="Student"?value.librarianEmail:value.loggedInUserEmail,
+                    value.loggedUserRole == "Student"
+                        ? value.librarianEmail
+                        : value.loggedInUserEmail,
                     daysController.text);
                 Navigator.pop(context);
                 Navigator.pop(context);

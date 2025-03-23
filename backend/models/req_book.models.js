@@ -45,7 +45,8 @@ const reqBookSchema=new mongoose.Schema({
     days:{
         type:Number,
         required:true
-    }
+    },
+    
 },{timestamps:true})
 
 const REQBOOK=mongoose.model("REQBOOK",reqBookSchema)

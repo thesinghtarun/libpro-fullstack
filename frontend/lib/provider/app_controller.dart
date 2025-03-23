@@ -428,7 +428,7 @@ class AppController extends ChangeNotifier {
         "bookPublishedYear": bookPublishedYear,
         "studentEmail": studentEmail,
         "addedBy": addedBy,
-        "days": days
+        "days": days,
       });
       var res = await http.post(url,
           headers: {"Content-Type": "application/json"}, body: data);
@@ -450,9 +450,10 @@ class AppController extends ChangeNotifier {
   Future<void> getPendingReqBook() async {
     var uri = "${api}api/getPendingReqBook";
     var url = Uri.parse(uri);
-    var data=jsonEncode({"addedBy":loggedInUserEmail});
+    var data = jsonEncode({"addedBy": loggedInUserEmail});
     try {
-      var res = await http.post(url, headers: {"Content-Type":"application/json"},body: data);
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
       if (res.statusCode == 200 || res.statusCode == 201) {
         var reqBookData = jsonDecode(res.body);
         allRequestedBookData = reqBookData["requestedBook"];
@@ -465,10 +466,12 @@ class AppController extends ChangeNotifier {
 
   //to show reqested book to student
   var allReqDoneByStudent;
-  Future<void> getReqBookByStudent(String studentEmail) async {
+  Future<void> getReqBookByStudent(
+    String studentEmail,
+  ) async {
     var uri = "${api}api/getReqBookForStudent";
     var url = Uri.parse(uri);
-    var data = jsonEncode({"studentEmail": studentEmail});
+    var data = jsonEncode({"studentEmail": studentEmail, "status": "pending"});
     try {
       var res = await http.post(url,
           headers: {"Content-Type": "application/json"}, body: data);
@@ -477,6 +480,7 @@ class AppController extends ChangeNotifier {
         allReqDoneByStudent = bookData["requestedBook"];
       }
       notifyListeners();
+      print("AllReq" + allReqDoneByStudent.toString());
     } catch (e) {
       print(e);
     }
@@ -505,5 +509,121 @@ class AppController extends ChangeNotifier {
     loggedUserRole = null;
     setIndex(0);
     notifyListeners();
+  }
+
+  //hide accept/reject button
+  bool hide = false;
+  void hideButton() {
+    hide = true;
+    notifyListeners();
+  }
+
+  //to show data of qr in show_qr_for_book_req
+  bool showData = false;
+  void revealQrData() {
+    showData = !showData;
+    notifyListeners();
+  }
+
+  //to show data scanned in scan_qr_to_accpt_book
+  bool showScannedData = false;
+  void revealScannedData() {
+    showScannedData = !showScannedData;
+    notifyListeners();
+  }
+
+  //to decrease book count
+  Future<void> decreaseBookcountFromBookCollection(String bookId) async {
+    var uri = "${api}api/decreaseBookCount";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"bookId": bookId});
+    try {
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        print("Book count reduced");
+      } else {
+        print("Nothing happend");
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //to show all book req accpted by student
+  var allReqAccptedByStudent;
+  Future<List<dynamic>> getReqAcceptedByStudent(String studentEmail) async {
+    var uri = "${api}api/getReqBookForStudent";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"studentEmail": studentEmail, "status": "accepted"});
+
+    try {
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        var bookData = jsonDecode(res.body);
+
+        // ✅ Store and return the data
+        allReqAccptedByStudent = bookData["requestedBook"];
+        print("All Accepted Books: $allReqAccptedByStudent");
+
+        return allReqAccptedByStudent; // ✅ Return the data
+      } else {
+        print("Failed to fetch data. Status: ${res.statusCode}");
+        return [];
+      }
+    } catch (e) {
+      print("Error: $e");
+      return [];
+    }
+  }
+
+//to fetch all Category
+  var allCategoryData;
+  Future<void> fetchAllCategory(String addedBy) async {
+    final data = jsonEncode({"addedBy": addedBy});
+    var uri = "${api}api/fetchBookCategory";
+    var url = Uri.parse(uri);
+
+    try {
+      var res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: data,
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        // ✅ Correct status code check
+        allCategoryData = jsonDecode(res.body);
+        print("AllCategory: $allCategoryData");
+        notifyListeners();
+      } else {
+        print("Error: ${res.statusCode} - ${res.body}");
+      }
+    } catch (e) {
+      print("Exception: $e");
+    }
+  }
+
+//to fetch book based on category and same librarian
+  var fetchBookBasedOnCategoryData;
+  Future<void> fetchBookBasedOnCategory(String category, String addedBy) async {
+    var uri = "${api}api/fetchBookBasedOnCategory";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"bookCategory": category, "addedBy": addedBy});
+    try {
+      var res = await http.post(url,
+          headers: {"Content-type": "application/json"}, body: data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        fetchBookBasedOnCategoryData = jsonDecode(res.body);
+        print("fetchBookBasedOnCategoryData: $fetchBookBasedOnCategoryData");
+        notifyListeners();
+      } else {
+        print("Error: ${res.statusCode} - ${res.body}");
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }

@@ -43,6 +43,7 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   TextField(
                     controller: emailController,
+                    autofocus: true,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
