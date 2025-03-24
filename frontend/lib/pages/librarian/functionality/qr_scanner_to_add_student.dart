@@ -33,7 +33,7 @@ class QrScannerToAddStudent extends StatelessWidget {
                       visible: value.qrResultData == null ? false : true,
                       child: OutlinedButton(
                           onPressed: () {
-                            value.qrAddStudent(value.loggedInUserEmail);
+                            value.qrAddStudent(context,value.loggedInUserEmail);
                           },
                           child: const Text("Add Student"))))
             ],

@@ -17,8 +17,7 @@ class AddBook extends StatelessWidget {
         TextEditingController();
     final TextEditingController bookCountController = TextEditingController();
 
-    return 
-    Scaffold(
+    return Scaffold(
       appBar: AppBar(title: const Text("Add Book")),
       body: SafeArea(
         child: Column(
@@ -105,8 +104,12 @@ class AddBook extends StatelessWidget {
               builder: (context, value, child) => OutlinedButton(
                   onPressed: () {
                     value.addBook(
-                        bookNameController.text.toString().trim(),
-                        bookCategoryController.text.toString().trim().toLowerCase(),
+                      context,
+                        bookNameController.text.toString().trim().toLowerCase(),
+                        bookCategoryController.text
+                            .toString()
+                            .trim()
+                            .toLowerCase(),
                         int.parse(bookCountController.text.trim()),
                         bookPublisherController.text.toString().trim(),
                         bookEditionController.text.toString().trim(),

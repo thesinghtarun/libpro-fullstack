@@ -12,115 +12,144 @@ class ScanQrToAccptBook extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Scan Qr"),
+      ),
       body: Center(
-        child: !kIsWeb
-            ? Platform.isAndroid || Platform.isIOS
-                ? Consumer<AppController>(
-                    builder: (context, value, child) {
-                      final qrData = value.qrResultDataToAccptBook;
+          child: !kIsWeb
+              ? Platform.isAndroid || Platform.isIOS
+                  ? Consumer<AppController>(
+                      builder: (context, value, child) {
+                        final qrData = value.qrResultDataToAccptBook;
 
-                      // Check if QR data is valid and normalize it
-                      final bool isValidQR =
-                          qrData != null && qrData.length == 15;
+                        // Check if QR data is valid and normalize it
+                        final bool isValidQR =
+                            qrData != null && qrData.length == 15;
 
-                      // Normalize and trim both QR and book request data
-                      final bool isMatchingBook = isValidQR &&
-                          qrData[1].toString().trim() ==
-                              bookReq["bookId"].toString().trim() &&
-                          qrData[8].toString().trim() ==
-                              bookReq["studentEmail"].toString().trim();
+                        // Normalize and trim both QR and book request data
+                        final bool isMatchingBook = isValidQR &&
+                            qrData[1].toString().trim() ==
+                                bookReq["bookId"].toString().trim() &&
+                            qrData[8].toString().trim() ==
+                                bookReq["studentEmail"].toString().trim();
 
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (!isValidQR)
-                            const Text(
-                              "Result will show here",
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            )
-                          else
-                            Text(
-                              isMatchingBook
-                                  ? "Book Name: ${qrData[2]}"
-                                  : "You are scanning the wrong QR",
-                              style: const TextStyle(fontSize: 16),
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (!isValidQR)
+                              const Text(
+                                "Result will show here",
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              )
+                            else
+                              Text(
+                                isMatchingBook
+                                    ? "Book Name: ${qrData[2]}"
+                                    : "You are scanning the wrong QR",
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            const SizedBox(height: 20),
+
+                            OutlinedButton(
+                              onPressed: () => value.showQrScannerToAccptBook(),
+                              child: const Text("Scan"),
                             ),
-                          const SizedBox(height: 20),
 
-                          OutlinedButton(
-                            onPressed: () => value.showQrScannerToAccptBook(),
-                            child: const Text("Scan"),
-                          ),
+                            // Show "Accept" and "Deny" buttons when book matches
+                            if (isMatchingBook) ...[
+                              const SizedBox(height: 10),
+                              OutlinedButton(
+                                onPressed: () {
+                                  value.handleBookRequest(
+                                      bookReq["_id"], "accepted");
+                                  value.decreaseBookcountFromBookCollection(
+                                      bookReq["bookId"]);
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Accept"),
+                              ),
+                              const SizedBox(height: 10),
+                              OutlinedButton(
+                                onPressed: () {
+                                  value.handleBookRequest(
+                                      bookReq["_id"], "rejected");
+                                  Navigator.pop(context);
+                                },
+                                style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.red),
+                                child: const Text("Reject"),
+                              ),
+                            ],
 
-                          // Show "Accept" and "Deny" buttons when book matches
-                          if (isMatchingBook) ...[
-                            const SizedBox(height: 10),
+                            // Show warning when scanning the wrong QR
+                            if (isValidQR && !isMatchingBook)
+                              const Text(
+                                "*You are scanning QR for the wrong book",
+                                style: TextStyle(color: Colors.redAccent),
+                              ),
+                            if (!isValidQR)
+                              const Text(
+                                "*You are scanning wrong QR",
+                                style: TextStyle(color: Colors.redAccent),
+                              ),
                             OutlinedButton(
                               onPressed: () {
-                                value.handleBookRequest(
-                                    bookReq["_id"], "accepted");
-                                value.decreaseBookcountFromBookCollection(bookReq["bookId"]);
-                                Navigator.pop(context);
+                                print("QR Scanned Data: ${qrData.toString()}");
+                                value.revealScannedData();
                               },
-                              child: const Text("Accept"),
+                              child: const Text("Show Data"),
                             ),
-                            const SizedBox(height: 10),
-                            OutlinedButton(
-                              onPressed: () {
-                                value.handleBookRequest(
-                                    bookReq["_id"], "rejected");
-                                Navigator.pop(context);
-                              },
-                              style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.red),
-                              child: const Text("Reject"),
+                            Visibility(
+                              visible: value.showScannedData,
+                              child: Text(qrData == null
+                                  ? "Data will show here"
+                                  : qrData.toString()),
                             ),
                           ],
-
-                          // Show warning when scanning the wrong QR
-                          if (isValidQR && !isMatchingBook)
-                            const Text(
-                              "*You are scanning QR for the wrong book",
-                              style: TextStyle(color: Colors.redAccent),
-                            ),
-                          if (!isValidQR)
-                            const Text(
-                              "*You are scanning wrong QR",
-                              style: TextStyle(color: Colors.redAccent),
-                            ),
-                          OutlinedButton(
-                            onPressed: () {
-                              print("QR Scanned Data: ${qrData.toString()}");
-                              value.revealScannedData();
-                            },
-                            child: const Text("Show Data"),
+                        );
+                      },
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            "assets/images/animated_mobile.png",
+                            height: MediaQuery.of(context).size.height / 2.5,
                           ),
-                          Visibility(
-                            visible: value.showScannedData,
-                            child: Text(qrData == null
-                                ? "Data will show here"
-                                : qrData.toString()),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          const Text(
+                            "Use Mobile to scan QR",
+                            style: TextStyle(
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.bold),
                           ),
                         ],
-                      );
-                    },
-                  )
-                : const Center(
-                    child: Text(
-                      "Use Mobile to scan QR",
-                      style: TextStyle(
-                          color: Colors.redAccent, fontWeight: FontWeight.bold),
-                    ),
-                  )
-            : const Center(
-                child: Text(
-                  "Use Mobile to scan QR",
-                  style: TextStyle(
-                      color: Colors.redAccent, fontWeight: FontWeight.bold),
-                ),
-              ),
-      ),
+                      ),
+                    )
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        "assets/images/animated_mobile.png",
+                        height: MediaQuery.of(context).size.height / 2.5,
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      const Text(
+                        "Use Mobile to scan QR",
+                        style: TextStyle(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                )),
     );
   }
 }

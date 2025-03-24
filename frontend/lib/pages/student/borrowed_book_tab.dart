@@ -52,13 +52,14 @@ class _BorrowedBookTabState extends State<BorrowedBookTab> {
               var publisher = book['bookPublisher'] ?? "Unknown Publisher";
 
               return TimerCard(
-                  bookName: book['bookName'],
-                  acceptedDate: date,
-                  days: days,
-                  publisher: publisher,
-                  price: book["bookPrice"].toString(),
-                  edition: book["bookEdition"],
-                  publishedYear: book["bookPublishedYear"].toString());
+                bookName: book['bookName'],
+                acceptedDate: date,
+                days: days,
+                publisher: publisher,
+                price: book["bookPrice"].toString(),
+                edition: book["bookEdition"],
+                publishedYear: book["bookPublishedYear"].toString(),
+              );
             },
           );
         },
@@ -82,15 +83,16 @@ class TimerCard extends StatefulWidget {
   final String edition;
   final String publishedYear;
 
-  const TimerCard(
-      {super.key,
-      required this.bookName,
-      required this.acceptedDate,
-      required this.days,
-      required this.publisher,
-      required this.price,
-      required this.edition,
-      required this.publishedYear});
+  const TimerCard({
+    super.key,
+    required this.bookName,
+    required this.acceptedDate,
+    required this.days,
+    required this.publisher,
+    required this.price,
+    required this.edition,
+    required this.publishedYear,
+  });
 
   @override
   _TimerCardState createState() => _TimerCardState();
@@ -105,7 +107,8 @@ class _TimerCardState extends State<TimerCard> {
     super.initState();
     _timeLeft = _calculateTimeLeft();
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    // Use periodic updates every minute instead of every second
+    _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
       setState(() {
         _timeLeft = _calculateTimeLeft();
       });
@@ -129,6 +132,19 @@ class _TimerCardState extends State<TimerCard> {
     return endDate.difference(now);
   }
 
+  /// ✅ Fixed date parsing
+  String getDate() {
+    try {
+      DateTime dateTime = DateTime.parse(widget.acceptedDate);
+      String year = dateTime.year.toString();
+      String month = dateTime.month.toString().padLeft(2, '0');
+      String day = dateTime.day.toString().padLeft(2, '0');
+      return "$day-$month-$year";
+    } catch (e) {
+      return "Invalid Date";
+    }
+  }
+
   String _formatDuration(Duration duration) {
     if (duration == Duration.zero) {
       return "Time expired";
@@ -136,12 +152,12 @@ class _TimerCardState extends State<TimerCard> {
     int days = duration.inDays;
     int hours = duration.inHours % 24;
     int minutes = duration.inMinutes % 60;
-    int seconds = duration.inSeconds % 60;
 
-    return "$days days, $hours hrs, $minutes min, $seconds sec";
+    return "$days days, $hours hrs, $minutes min";
   }
 
   void _showDialog(BuildContext context) {
+    String date = getDate();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -150,9 +166,10 @@ class _TimerCardState extends State<TimerCard> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text("Accepted date: $date"),
             Text("Book Publisher: ${widget.publisher}"),
             Text("Book Price: ${widget.price}"),
-            Text("Book Price: ${widget.edition}"),
+            Text("Book Edition: ${widget.edition}"),
             Text("Published Year: ${widget.publishedYear}"),
           ],
         ),

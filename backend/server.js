@@ -3,7 +3,26 @@ const mongoose = require("mongoose");
 const chalk=require("chalk")
 const cors=require("cors")
 const express = require("express");
-const { signUpController,loginController, addBookController, addStudentController , showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController, reqBookController, showPendingBookReqController,showReqBookForStudent,updateBookRequestStatus,decreaseBookCount,fetchCategory,fetchBookBasedOnCategory} = require("./controller/controller");
+const { 
+  signUpController,
+  loginController,
+  addBookController,
+  addStudentController,
+  showAllBooksController,
+  showAllStudentsController,
+  getLibrarianEmailController,
+  updateBookAvailablityController,
+  getBookAvailabilityController,
+  reqBookController,
+  showPendingBookReqController,
+  showReqBookForStudent,
+  updateBookRequestStatus,
+  decreaseBookCount,
+  fetchCategory,
+  fetchBookBasedOnCategory,
+  updatePasswordController,
+  searchBookController
+} = require("./controller/controller");
 const app = express();
 
 const db = process.env.MONGODB;
@@ -70,3 +89,9 @@ app.post("/api/fetchBookCategory",fetchCategory);
 
 //to fetch all book based on same librarian and category Route
 app.post("/api/fetchBookBasedOnCategory",fetchBookBasedOnCategory);
+
+// to update password of a user Route
+app.post("/api/updatePassword",updatePasswordController);
+
+// to search book/s Route
+app.post("/api/searchBookController",searchBookController);

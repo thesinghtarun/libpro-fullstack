@@ -97,6 +97,7 @@ class AddStudent extends StatelessWidget {
               builder: (context, value, child) => OutlinedButton(
                 onPressed: () {
                   value.addStudent(
+                    context,
                       studNameController.text.toString().trim(),
                       emailController.text.toString().trim(),
                       studBranchController.text.toString().trim(),

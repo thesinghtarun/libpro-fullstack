@@ -47,8 +47,8 @@ class HomeTab extends StatelessWidget {
                 flex: 1,
                 child: FutureBuilder<List>(
                   future: value.loggedUserRole == "Librarian"
-                      ? value.showAllStudents() // Fetch students if Librarian
-                      : value.showAllBooks(), // Fetch books if Student
+                      ? value.showAllStudents(context) // Fetch students if Librarian
+                      : value.showAllBooks(context), // Fetch books if Student
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -102,12 +102,13 @@ class HomeTab extends StatelessWidget {
                             ),
                             margin: const EdgeInsets.symmetric(horizontal: 10),
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const SizedBox(height: 10),
                                 Text(
                                   value.loggedUserRole == "Librarian"
                                       ? "${item["name"] ?? "Unnamed Student"}"
-                                      : " ${item["bookName"] ?? "Unnamed Book"}",
+                                      : " ${item["bookName"].toString().toUpperCase() ?? "Unnamed Book"}",
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -156,7 +157,7 @@ class HomeTab extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: FutureBuilder<List>(
-                    future: appController.showAllBooks(),
+                    future: appController.showAllBooks(context),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -213,7 +214,7 @@ class HomeTab extends StatelessWidget {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          "${item["bookName"] ?? "Unnamed"}",
+                                          "${item["bookName"].toString().toUpperCase() ?? "Unnamed"}",
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,

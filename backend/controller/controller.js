@@ -351,7 +351,61 @@ const fetchCategory=async (req,res)=>{
 };
 
 
+//to update password
+const updatePasswordController=async (req,res)=>{
+  const {email,password}=req.body
+  try {
+    const user=await USER.findOne({email})
+    if(!user){
+      return res.status(404).json({msg:"User not found"})
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    user.password=hashedPassword
+    await user.save();
 
+    res.status(200).json({ msg: "Password updated successfully" });
+
+  } catch (error) {
+    res.status(500).json({"error":error})
+  }
+};
+
+//to search a book
+const searchBookController=async (req,res)=>{
+  const {bookName}=req.body
+  try {
+    if(!bookName){
+      return res.status(404).json({msg:"Book name required"})
+    }
+    const bookData=await BOOK.find({bookName});
+    if(!bookData){
+      return res.status(406).json({msg:"Book not found"})
+    }
+    res.status(200).json({bookData})
+  } catch (error) {
+    res.status(500).json({"error":error})
+  }
+}
 
 //exporting
-  module.exports={signUpController,loginController,addBookController,addStudentController,showAllBooksController,showAllStudentsController,getLibrarianEmailController,updateBookAvailablityController,getBookAvailabilityController ,reqBookController,showPendingBookReqController,showReqBookForStudent,updateBookRequestStatus,decreaseBookCount,fetchCategory,fetchBookBasedOnCategory}
+  module.exports={
+    signUpController,
+    loginController,
+    addBookController,
+    addStudentController,
+    showAllBooksController,
+    showAllStudentsController,
+    getLibrarianEmailController,
+    updateBookAvailablityController,
+    getBookAvailabilityController,
+    reqBookController,
+    showPendingBookReqController,
+    showReqBookForStudent,
+    updateBookRequestStatus,
+    decreaseBookCount,
+    fetchCategory,
+    fetchBookBasedOnCategory,
+    updatePasswordController,
+    searchBookController
+  }

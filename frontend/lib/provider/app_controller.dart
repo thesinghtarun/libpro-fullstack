@@ -7,9 +7,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
 import 'package:libpro/consts.dart';
+import 'package:libpro/helper/ui_helper.dart';
 import 'package:libpro/pages/common/authentication/login_screen.dart';
 import 'package:libpro/pages/common/home_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AppController extends ChangeNotifier {
   var loggedInUserEmail;
@@ -33,7 +35,8 @@ class AppController extends ChangeNotifier {
     loggedInUserEmail = email;
 
     if (email.isEmpty || password.isEmpty) {
-      print("Enter Credentials");
+      UiHelper.showSnackbar(context, "Enter Credentials");
+    
       return;
     }
 
@@ -56,16 +59,17 @@ class AppController extends ChangeNotifier {
         print("User Email: $loggedInUserData");
         await getLibraianEmail();
         print("userData: $userData");
+        UiHelper.showSnackbar(context, "Logged in successfully");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
         notifyListeners();
       } else {
-        print("Login failed: ${res.statusCode} - ${res.body}");
+        UiHelper.showSnackbar(context, "Login failed: ${res.statusCode} - ${res.body}");
       }
     } catch (e) {
-      print("Error occurred: $e");
+      UiHelper.showSnackbar(context, "Error occurred: $e");
     }
   }
 
@@ -73,7 +77,7 @@ class AppController extends ChangeNotifier {
   signUp(
       String name, String email, String password, BuildContext context) async {
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      return print("Enter Data");
+      return UiHelper.showSnackbar(context, "Enter Data");
     }
     String signUpApi = "${api}api/signUp";
     var url = Uri.parse(signUpApi);
@@ -96,13 +100,13 @@ class AppController extends ChangeNotifier {
             MaterialPageRoute(builder: (context) => const LoginScreen()));
       }
     } catch (e) {
-      print("Error occurred while calling API for sign-up: $e");
+      UiHelper.showSnackbar(context, "Error occurred while calling API for sign-up: $e");
       return {"success": false, "error": e.toString()};
     }
   }
 
   //API call for addStudent
-  addStudent(String name, String email, String branch, String course,
+  addStudent(context,String name, String email, String branch, String course,
       String sem, String div, String addedBy) async {
     var addStudentUrl = "${api}api/addStudent";
     String password = "Welcome";
@@ -130,15 +134,15 @@ class AppController extends ChangeNotifier {
         print(jsonDecode(res.body));
       }
       if (res.statusCode != 200 || res.statusCode != 201) {
-        print(res.statusCode);
+        UiHelper.showSnackbar(context, "Student added");
       }
     } catch (e) {
-      print("error while adding student $e");
+      UiHelper.showSnackbar(context, "error while adding student $e");
     }
   }
 
   //API call for addBook
-  addBook(String name, String category, int count, String publisher,
+  addBook(context,String name, String category, int count, String publisher,
       String edition, int price, int publishedYear, String addedBy) async {
     var addBookUrl = "${api}api/addBook";
     var data = jsonEncode({
@@ -163,15 +167,15 @@ class AppController extends ChangeNotifier {
         print(jsonDecode(res.body));
       }
       if (res.statusCode != 200 || res.statusCode != 201) {
-        print(res.statusCode);
+        UiHelper.showSnackbar(context, "Book added");
       }
     } catch (e) {
-      print("error while adding bookR $e");
+      UiHelper.showSnackbar(context, "error while adding bookR $e");
     }
   }
 
   // Fetch all students
-  Future<List<dynamic>> showAllStudents() async {
+  Future<List<dynamic>> showAllStudents(context) async {
     var url = "${api}api/showAllStudents";
     try {
       var showAllStudentUrl = Uri.parse(url);
@@ -183,17 +187,17 @@ class AppController extends ChangeNotifier {
         var data = jsonDecode(res.body);
         return data["students"] ?? []; // Return only the student list
       } else {
-        print("Error ${res.statusCode}: ${res.body}");
+        UiHelper.showSnackbar(context, "Error ${res.statusCode}: ${res.body}");
       }
     } catch (e) {
-      print("Error while fetching students: $e");
+      UiHelper.showSnackbar(context, "Error while fetching students: $e");
     }
     return []; // Return empty list if error occurs
   }
 
   // Fetch all books
 
-  Future<List<dynamic>> showAllBooks() async {
+  Future<List<dynamic>> showAllBooks(context) async {
     var url = "${api}api/showAllBooks";
     var showAllBooksUrl = Uri.parse(url);
 
@@ -212,12 +216,12 @@ class AppController extends ChangeNotifier {
 
         return data;
       } else {
-        print("Error ${res.statusCode}: ${res.body}");
+        UiHelper.showSnackbar(context, "Error ${res.statusCode}: ${res.body}");
         throw Exception("Server returned an error: ${res.body}");
       }
     } catch (e) {
-      print("Error while fetching books: $e");
-      print(7); // Print full stack trace
+      UiHelper.showSnackbar(context, "Error while fetching books: $e");
+      
     }
 
     return [];
@@ -276,7 +280,7 @@ class AppController extends ChangeNotifier {
   }
 
 //addStudent using qr
-  qrAddStudent(String addedBy) async {
+  qrAddStudent(context,String addedBy) async {
     var addStudentUrl = "${api}api/addStudent";
     String password = "Welcome";
     String role = "Student";
@@ -306,10 +310,10 @@ class AppController extends ChangeNotifier {
         notifyListeners();
       }
       if (res.statusCode != 200 || res.statusCode != 201) {
-        print(res.statusCode);
+        UiHelper.showSnackbar(context, "Student added");
       }
     } catch (e) {
-      print("error while adding student $e");
+      UiHelper.showSnackbar(context, "error while adding student $e");
     }
   }
 
@@ -347,7 +351,7 @@ class AppController extends ChangeNotifier {
   }
 
   //to update in db
-  Future<void> updateAvailablityInDb(bookId, bookAvailablity) async {
+  Future<void> updateAvailablityInDb(context,bookId, bookAvailablity) async {
     var uri = "${api}api/updateBookavailablity";
     var url = Uri.parse(uri);
     var data = jsonEncode({"_id": bookId, "bookAvailablity": bookAvailablity});
@@ -355,13 +359,13 @@ class AppController extends ChangeNotifier {
       var res = await http.post(url,
           headers: {"Content-Type": "application/json"}, body: data);
       if (res.statusCode == 200 || res.statusCode == 201) {
-        print("Availablity updation Done");
+        UiHelper.showSnackbar(context, "Availablity updation Done");
         var bookData = jsonDecode(res.body);
         isBookAvailable = bookData["updatedBook"]["bookAvailablity"];
         notifyListeners();
       }
     } catch (e) {
-      print(e);
+      UiHelper.showSnackbar(context, e.toString());
     }
   }
 
@@ -502,15 +506,6 @@ class AppController extends ChangeNotifier {
     }
   }
 
-  //reset everything for new login
-  void logoutToReset() {
-    loggedInUserEmail = null;
-    librarianEmail = null;
-    loggedUserRole = null;
-    setIndex(0);
-    notifyListeners();
-  }
-
   //hide accept/reject button
   bool hide = false;
   void hideButton() {
@@ -625,5 +620,76 @@ class AppController extends ChangeNotifier {
     } catch (e) {
       print(e);
     }
+  }
+
+  //to update password
+  Future<void> updatePassword(context,String email, String password) async {
+    var uri = "${api}api/updatePassword";
+    var url = Uri.parse(uri);
+    if (password.isEmpty) {
+      UiHelper.showSnackbar(context, "Enter password");
+    }
+    var data = jsonEncode({"email": email, "password": password});
+    try {
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        UiHelper.showSnackbar(context, "Password updated successfully");
+      } else {
+        UiHelper.showSnackbar(context, "Something went wrong");
+      }
+    } catch (e) {
+      UiHelper.showSnackbar(context, e.toString());
+    }
+  }
+
+  //to search book
+  Future<void> searchBook(context,String bookName) async {
+    var uri = "${api}api/searchBookController";
+    var url = Uri.parse(uri);
+
+    if (bookName.isEmpty) {
+      UiHelper.showSnackbar(context, "Enter Book Name");
+      return; // ✅ Exit the function if book name is empty
+    }
+
+    var data = jsonEncode({"bookName": bookName});
+
+    try {
+      var res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"}, // ✅ Fixed typo
+        body: data,
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        var responseData = jsonDecode(res.body);
+
+        if (responseData['bookData'] != null &&
+            responseData['bookData'].isNotEmpty) {
+          fetchBookBasedOnCategoryData = responseData['bookData'];
+          notifyListeners();
+        } else {
+          UiHelper.showSnackbar(context, "No book found.");
+        }
+      } else {
+        UiHelper.showSnackbar(context, "Failed to fetch book: ${res.statusCode}");
+      }
+    } catch (e) {
+      UiHelper.showSnackbar(context, "Error: $e");
+    }
+  }
+
+  //reset everything for new login
+  void logoutToReset() {
+    loggedInUserEmail = null;
+    librarianEmail = null;
+    loggedUserRole = null;
+    fetchBookBasedOnCategoryData = null;
+    allCategoryData = null;
+    allReqAccptedByStudent = null;
+    setIndex(0);
+
+    notifyListeners();
   }
 }

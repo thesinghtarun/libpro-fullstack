@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:libpro/pages/librarian/functionality/show_qr_for_book_req.dart';
 import 'package:libpro/pages/student/scan_qr_to_accpt_book.dart';
@@ -51,13 +54,16 @@ class _ShowAllRequestState extends State<ShowAllRequest> {
               return ListView.builder(
                 itemCount: bookRequests.length,
                 itemBuilder: (context, index) {
-                  
-                var request = bookRequests[index];
+                  var request = bookRequests[index];
                   return InkWell(
                     onTap: () {
                       if (appController.loggedUserRole == "Student") {
                         appController.resetQrDataToAccptBook();
-                        appController.requestCameraPermission();
+                        if (!kIsWeb) {
+                          if (Platform.isAndroid || Platform.isIOS) {
+                            appController.requestCameraPermission();
+                          }
+                        }
 
                         Navigator.push(
                           context,
@@ -75,9 +81,7 @@ class _ShowAllRequestState extends State<ShowAllRequest> {
                         );
                       }
                     },
-                    child:
-                   
-                     Card(
+                    child: Card(
                       elevation: 1,
                       child: ListTile(
                         title: Text(request['bookName']),

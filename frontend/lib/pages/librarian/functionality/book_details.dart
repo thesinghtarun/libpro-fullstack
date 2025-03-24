@@ -49,9 +49,11 @@ class BookDetails extends StatelessWidget {
                             value: value.isBookAvailable,
                             activeColor: Colors.green,
                             onChanged: (val) async {
+                              
                               value.toggleBookAvailablity();
 
                               await value.updateAvailablityInDb(
+                                context,
                                   bookData["_id"], value.isBookAvailable);
                             }),
                       )

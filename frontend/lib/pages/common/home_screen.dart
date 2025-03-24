@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, value, child) => Scaffold(
           body: IndexedStack(
             index: value.currentIndex,
-            children: value.loggedUserRole == "librarian"
+            children: value.loggedUserRole == "Librarian"
                 ? librarianScreens
                 : studentScreens,
           ),
