@@ -21,7 +21,10 @@ const {
   fetchCategory,
   fetchBookBasedOnCategory,
   updatePasswordController,
-  searchBookController
+  searchBookController,
+  mostReqBookController,
+  showALLReqController,
+  showReportController
 } = require("./controller/controller");
 const app = express();
 
@@ -95,3 +98,12 @@ app.post("/api/updatePassword",updatePasswordController);
 
 // to search book/s Route
 app.post("/api/searchBookController",searchBookController);
+
+//to add most req book to db Route
+app.post("/api/mostReqBookController",mostReqBookController)
+
+//to fetch all req made by student Route
+app.post("/api/showALLReqController",showALLReqController);
+
+//to fetch most req book Route
+app.post("/api/showReportController",showReportController);

@@ -65,6 +65,16 @@ class ScanQrToAccptBook extends StatelessWidget {
                                       bookReq["_id"], "accepted");
                                   value.decreaseBookcountFromBookCollection(
                                       bookReq["bookId"]);
+                                  value.increaseCountForMostReqBook(
+                                      context,
+                                      bookReq["bookId"],
+                                      bookReq["bookName"]
+                                          .toString()
+                                          .toLowerCase(),
+                                      bookReq["bookEdition"],
+                                      value.loggedUserRole == "Student"
+                                          ? value.librarianEmail
+                                          : value.loggedInUserEmail);
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Accept"),

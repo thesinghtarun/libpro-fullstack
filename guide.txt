@@ -1,1 +1,23 @@
-Pre-requisits= Node
+Pre-requisits= Node js,Flutter
+To start:
+    -Run:
+        flutter pub get(make sure developer mode is enabled)
+    -Open frontend(in project folder)
+        -lib
+            -consts.dart
+                -Change ip adress to loaclhost
+    -Open backend(in terminal)
+        -cd backend
+            -npm install
+                -npm run dev(after successfull run u will get Listening on port 3000 \n MongoDB onnected)
+    -open frontend
+        -cd..
+            -cd frontend
+                -flutter run
+                    -1(for windows)
+                    -2(for edge)
+                    -3(for chrome)
+
+You are ready to use the app
+ps: the project is still incomplete but your basic knowledge of nodejs, express will be cleared
+If encountered any error u know what to do :)

@@ -36,7 +36,7 @@ class AppController extends ChangeNotifier {
 
     if (email.isEmpty || password.isEmpty) {
       UiHelper.showSnackbar(context, "Enter Credentials");
-    
+
       return;
     }
 
@@ -66,7 +66,8 @@ class AppController extends ChangeNotifier {
         );
         notifyListeners();
       } else {
-        UiHelper.showSnackbar(context, "Login failed: ${res.statusCode} - ${res.body}");
+        UiHelper.showSnackbar(
+            context, "Login failed: ${res.statusCode} - ${res.body}");
       }
     } catch (e) {
       UiHelper.showSnackbar(context, "Error occurred: $e");
@@ -100,13 +101,14 @@ class AppController extends ChangeNotifier {
             MaterialPageRoute(builder: (context) => const LoginScreen()));
       }
     } catch (e) {
-      UiHelper.showSnackbar(context, "Error occurred while calling API for sign-up: $e");
+      UiHelper.showSnackbar(
+          context, "Error occurred while calling API for sign-up: $e");
       return {"success": false, "error": e.toString()};
     }
   }
 
   //API call for addStudent
-  addStudent(context,String name, String email, String branch, String course,
+  addStudent(context, String name, String email, String branch, String course,
       String sem, String div, String addedBy) async {
     var addStudentUrl = "${api}api/addStudent";
     String password = "Welcome";
@@ -142,7 +144,7 @@ class AppController extends ChangeNotifier {
   }
 
   //API call for addBook
-  addBook(context,String name, String category, int count, String publisher,
+  addBook(context, String name, String category, int count, String publisher,
       String edition, int price, int publishedYear, String addedBy) async {
     var addBookUrl = "${api}api/addBook";
     var data = jsonEncode({
@@ -221,7 +223,6 @@ class AppController extends ChangeNotifier {
       }
     } catch (e) {
       UiHelper.showSnackbar(context, "Error while fetching books: $e");
-      
     }
 
     return [];
@@ -280,7 +281,7 @@ class AppController extends ChangeNotifier {
   }
 
 //addStudent using qr
-  qrAddStudent(context,String addedBy) async {
+  qrAddStudent(context, String addedBy) async {
     var addStudentUrl = "${api}api/addStudent";
     String password = "Welcome";
     String role = "Student";
@@ -351,7 +352,7 @@ class AppController extends ChangeNotifier {
   }
 
   //to update in db
-  Future<void> updateAvailablityInDb(context,bookId, bookAvailablity) async {
+  Future<void> updateAvailablityInDb(context, bookId, bookAvailablity) async {
     var uri = "${api}api/updateBookavailablity";
     var url = Uri.parse(uri);
     var data = jsonEncode({"_id": bookId, "bookAvailablity": bookAvailablity});
@@ -623,7 +624,7 @@ class AppController extends ChangeNotifier {
   }
 
   //to update password
-  Future<void> updatePassword(context,String email, String password) async {
+  Future<void> updatePassword(context, String email, String password) async {
     var uri = "${api}api/updatePassword";
     var url = Uri.parse(uri);
     if (password.isEmpty) {
@@ -644,7 +645,7 @@ class AppController extends ChangeNotifier {
   }
 
   //to search book
-  Future<void> searchBook(context,String bookName) async {
+  Future<void> searchBook(context, String bookName) async {
     var uri = "${api}api/searchBookController";
     var url = Uri.parse(uri);
 
@@ -673,10 +674,110 @@ class AppController extends ChangeNotifier {
           UiHelper.showSnackbar(context, "No book found.");
         }
       } else {
-        UiHelper.showSnackbar(context, "Failed to fetch book: ${res.statusCode}");
+        UiHelper.showSnackbar(
+            context, "Failed to fetch book: ${res.statusCode}");
       }
     } catch (e) {
       UiHelper.showSnackbar(context, "Error: $e");
+    }
+  }
+
+  //to increase count for most req book
+  Future<void> increaseCountForMostReqBook(context, String bookId,
+      String bookName, String bookEdition, String addedBy) async {
+    var uri = "${api}api/mostReqBookController";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({
+      "bookId": bookId,
+      "bookName": bookName,
+      "bookEdition": bookEdition,
+      "addedBy": addedBy
+    });
+    try {
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        var bookData = jsonDecode(res.body);
+        print(bookData["msg"]);
+      }
+    } catch (e) {
+      UiHelper.showSnackbar(context, e.toString());
+    }
+  }
+
+  //show all req made by student to show it in history tab of librarian
+
+  List<dynamic> allReq = [];
+  Future<List<dynamic>>? _futureReq; // Cache future to prevent continuous calls
+
+  Future<List<dynamic>> showAllReq(String addedBy) async {
+    if (_futureReq != null) {
+      return _futureReq!; // Return cached future if it exists
+    }
+
+    var uri = "${api}api/showALLReqController";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"addedBy": addedBy});
+
+    _futureReq = http
+        .post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: data,
+    )
+        .then((res) {
+      if (res.statusCode == 200) {
+        final reqData = jsonDecode(res.body);
+        allReq = reqData['allReq'];
+        notifyListeners();
+        return allReq;
+      } else if (res.statusCode == 404) {
+        allReq = [];
+        notifyListeners();
+        print("allReq data $allReq");
+        return [];
+      } else {
+        print("Error: ${res.statusCode}, ${res.body}");
+        return [];
+      }
+    }).catchError((e) {
+      print("Exception: $e");
+      return [];
+    });
+
+    return _futureReq!;
+  }
+
+  void clearCache() {
+    _futureReq = null; // Clear cache if you need to refetch data
+  }
+
+  //to show report of most requested book to librarian
+  var reportData;
+
+  Future<void> showReport(String addedBy) async {
+    var uri = "${api}api/showReportController";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"addedBy": addedBy});
+
+    try {
+      var res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: data,
+      );
+
+      if (res.statusCode == 200) {
+        var report = jsonDecode(res.body);
+        reportData = report["data"];
+        print("Report data: $reportData"); // Debugging
+      } else if (res.statusCode == 404) {
+        print("No reports found.");
+      } else {
+        print("Failed to fetch report: ${res.body}");
+      }
+    } catch (e) {
+      print("Error: $e");
     }
   }
 
@@ -688,6 +789,7 @@ class AppController extends ChangeNotifier {
     fetchBookBasedOnCategoryData = null;
     allCategoryData = null;
     allReqAccptedByStudent = null;
+    reportData = null;
     setIndex(0);
 
     notifyListeners();
