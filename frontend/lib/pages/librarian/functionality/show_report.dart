@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:libpro/provider/app_controller.dart';
@@ -17,17 +19,10 @@ class _ShowReportState extends State<ShowReport> {
   void initState() {
     super.initState();
     Provider.of<AppController>(context, listen: false)
-        .showReport(widget.addedBy);
+        .showReport(context,widget.addedBy);
   }
 
-  /// ✅ Generate random colors for pie chart sections
-  Color getRandomColor() {
-    return Color((0xFF000000 + (0xFFFFFF * (DateTime.now().millisecondsSinceEpoch % 0xFFFFFF)))
-        .toInt())
-        .withOpacity(1.0);
-  }
-
-  /// ✅ Convert report data to PieChart sections
+  /// ✅ Generate pie sections with better color and formatting
   List<PieChartSectionData> generatePieSections(List<dynamic> data) {
     return data.map((item) {
       return PieChartSectionData(
@@ -50,9 +45,9 @@ class _ShowReportState extends State<ShowReport> {
       appBar: AppBar(title: const Text("Report")),
       body: Consumer<AppController>(
         builder: (context, value, child) {
-          // if (reportProvider.isLoading) {
-          //   return const Center(child: CircularProgressIndicator());
-          // }
+          if (value.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
           if (value.reportData.isEmpty) {
             return const Center(child: Text("No reports found"));
@@ -87,4 +82,14 @@ class _ShowReportState extends State<ShowReport> {
       ),
     );
   }
+
+  Color getRandomColor() {
+  Random random = Random();
+  return Color.fromARGB(
+    255,
+    random.nextInt(200) + 55,  // Ensures colors are not too dark
+    random.nextInt(200) + 55,
+    random.nextInt(200) + 55,
+  );
+}
 }

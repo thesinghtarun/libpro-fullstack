@@ -109,6 +109,12 @@ class LoginScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  Consumer<AppController>(
+                      builder: (context, value, child) => Visibility(
+                          visible: value.isLoading ? true : false,
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          )))
                 ],
               ),
             ),

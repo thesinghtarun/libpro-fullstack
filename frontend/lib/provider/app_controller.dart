@@ -11,7 +11,6 @@ import 'package:libpro/helper/ui_helper.dart';
 import 'package:libpro/pages/common/authentication/login_screen.dart';
 import 'package:libpro/pages/common/home_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class AppController extends ChangeNotifier {
   var loggedInUserEmail;
@@ -30,8 +29,15 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool isLoading = false;
+  void loading() {
+    isLoading = !isLoading;
+    notifyListeners();
+  }
+
   //API call for login
   login(String email, String password, BuildContext context) async {
+    loading();
     loggedInUserEmail = email;
 
     if (email.isEmpty || password.isEmpty) {
@@ -59,6 +65,7 @@ class AppController extends ChangeNotifier {
         print("User Email: $loggedInUserData");
         await getLibraianEmail();
         print("userData: $userData");
+        loading();
         UiHelper.showSnackbar(context, "Logged in successfully");
         Navigator.pushReplacement(
           context,
@@ -66,8 +73,7 @@ class AppController extends ChangeNotifier {
         );
         notifyListeners();
       } else {
-        UiHelper.showSnackbar(
-            context, "Login failed: ${res.statusCode} - ${res.body}");
+        UiHelper.showSnackbar(context, "Login failed: - ${res.body}");
       }
     } catch (e) {
       UiHelper.showSnackbar(context, "Error occurred: $e");
@@ -97,6 +103,7 @@ class AppController extends ChangeNotifier {
         body: data,
       );
       if (res.statusCode == 200 || res.statusCode == 201) {
+        UiHelper.showSnackbar(context, "User registered successfully");
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const LoginScreen()));
       }
@@ -754,32 +761,39 @@ class AppController extends ChangeNotifier {
 
   //to show report of most requested book to librarian
   var reportData;
+Future<void> showReport( BuildContext context,String addedBy) async {
+  loading();
+  var uri = "${api}api/showReportController";
+  var url = Uri.parse(uri);
+  var data = jsonEncode({"addedBy": addedBy});
 
-  Future<void> showReport(String addedBy) async {
-    var uri = "${api}api/showReportController";
-    var url = Uri.parse(uri);
-    var data = jsonEncode({"addedBy": addedBy});
+  try {
+    var res = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: data,
+    );
 
-    try {
-      var res = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: data,
-      );
-
-      if (res.statusCode == 200) {
-        var report = jsonDecode(res.body);
-        reportData = report["data"];
-        print("Report data: $reportData"); // Debugging
-      } else if (res.statusCode == 404) {
-        print("No reports found.");
+    loading();
+    if (res.statusCode == 200) {
+      var report = jsonDecode(res.body);
+      reportData = report["data"];
+      
+      if (reportData.isEmpty) {
+        UiHelper.showSnackbar(context, "No report data found");
       } else {
-        print("Failed to fetch report: ${res.body}");
+        print("Report data: $reportData");  // Debugging
       }
-    } catch (e) {
-      print("Error: $e");
+    } else if (res.statusCode == 404) {
+      UiHelper.showSnackbar(context, "No reports found");
+    } else {
+      UiHelper.showSnackbar(context, "Failed to fetch report: ${res.body}");
     }
+  } catch (e) {
+    UiHelper.showSnackbar(context, "Error: $e");
   }
+}
+
 
   //reset everything for new login
   void logoutToReset() {

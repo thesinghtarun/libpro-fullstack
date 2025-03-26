@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:libpro/helper/ui_helper.dart';
 import 'package:libpro/pages/common/authentication/login_screen.dart';
 import 'package:libpro/pages/common/toggle_theme.dart';
 import 'package:libpro/pages/common/show_all_request.dart';
@@ -112,23 +113,30 @@ class ProfileTab extends StatelessWidget {
                           value.loggedUserRole == "Librarian" ? true : false,
                       child: OutlinedButton(
                           onPressed: () {
-                            value.showReport(value.loggedInUserEmail);
+                            value.showReport(context,value.loggedInUserEmail);
                             if (value.reportData.isNotEmpty) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      ShowReport(addedBy: value.loggedInUserEmail,),
+                                  builder: (_) => ShowReport(
+                                    addedBy: value.loggedInUserEmail,
+                                  ),
                                 ),
                               );
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text("No report data found")),
-                              );
+                              UiHelper.showSnackbar(
+                                  context, "No report data found");
                             }
                           },
-                          child: const Text("Show Report")))
+                          child: const Text("Show Report"))),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Visibility(
+                      visible: value.isLoading ? true : false,
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ))
                 ],
               ),
             ),
