@@ -37,7 +37,23 @@ class _BorrowedBookTabState extends State<BorrowedBookTab> {
             return const Center(child: Text("Something went wrong"));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("No data found"));
+            return Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  "assets/images/book_animated.png",
+                  height: MediaQuery.of(context).size.height / 2,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                const Text(
+                  "No requested book found",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                ),
+              ],
+            ));
           }
 
           var data = snapshot.data!;

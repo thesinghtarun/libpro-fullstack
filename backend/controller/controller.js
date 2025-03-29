@@ -394,7 +394,7 @@ const mostReqBookController = async (req, res) => {
   const { bookId, bookName, bookEdition,addedBy } = req.body;
 
   try {
-    if (!bookId || !bookName || !bookCategory) {
+    if (!bookId || !bookName ) {
       return res.status(400).json({ msg: "Please provide all required fields" });
     }
 

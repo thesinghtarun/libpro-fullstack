@@ -19,7 +19,7 @@ class _ShowReportState extends State<ShowReport> {
   void initState() {
     super.initState();
     Provider.of<AppController>(context, listen: false)
-        .showReport(context,widget.addedBy);
+        .showReport(context, widget.addedBy);
   }
 
   /// ✅ Generate pie sections with better color and formatting
@@ -28,7 +28,8 @@ class _ShowReportState extends State<ShowReport> {
       return PieChartSectionData(
         color: getRandomColor(),
         value: (item["count"] ?? 0).toDouble(),
-        title: "${item["bookName"]}\n(${item["edition"]})",
+        title:
+            "${item["bookName"].toString().toUpperCase()}\nEdition: ${item["bookEdition"]}",
         radius: 90,
         titleStyle: const TextStyle(
           fontSize: 14,
@@ -84,12 +85,12 @@ class _ShowReportState extends State<ShowReport> {
   }
 
   Color getRandomColor() {
-  Random random = Random();
-  return Color.fromARGB(
-    255,
-    random.nextInt(200) + 55,  // Ensures colors are not too dark
-    random.nextInt(200) + 55,
-    random.nextInt(200) + 55,
-  );
-}
+    Random random = Random();
+    return Color.fromARGB(
+      255,
+      random.nextInt(200) + 55, // Ensures colors are not too dark
+      random.nextInt(200) + 55,
+      random.nextInt(200) + 55,
+    );
+  }
 }

@@ -84,7 +84,7 @@ class _ShowAllRequestState extends State<ShowAllRequest> {
                     child: Card(
                       elevation: 1,
                       child: ListTile(
-                        title: Text(request['bookName']),
+                        title: Text(request['bookName'].toString().toUpperCase()),
                         subtitle:
                             Text("Requested by: ${request['studentEmail']}"),
                         trailing: Text("Days: ${request['days']}"),
