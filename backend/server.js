@@ -45,6 +45,10 @@ app.listen(port, () => {
   console.log(chalk.blue("Listening on port", port));
 });
 
+//to check if it is active
+app.get("/",(req,res)=>{
+  res.send("Working")
+})
 // Sign Up Route
 app.post("/api/signUp", signUpController);
 
