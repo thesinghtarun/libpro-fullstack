@@ -36,7 +36,8 @@ app.use(cors())
 
 // MongoDB Connection
 mongoose
-  .connect(db, { useNewUrlParser: true, useUnifiedTopology: true , serverSelectionTimeoutMS: 10000,})
+  .connect(db, { useNewUrlParser: true, useUnifiedTopology: true ,
+  })
   .then(() => console.log(chalk.blue("MongoDB connected")))
   .catch((e) => console.log(chalk.red("Error while connecting to DB:", e)));
 
