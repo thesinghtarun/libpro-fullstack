@@ -1,6 +1,6 @@
 const mongoose=require("mongoose")
 
-const reqBookSchema=new mongoose.Schema({
+const historySchema=new mongoose.Schema({
     bookId:{
         type:String,
         required:true
@@ -39,7 +39,7 @@ const reqBookSchema=new mongoose.Schema({
     },
     status:{
         type: String,
-        enum: ["pending", "accepted", "rejected","returned"],
+        enum: ["pending", "accepted", "rejected"],
         default: "pending"
     },
     days:{
@@ -49,5 +49,5 @@ const reqBookSchema=new mongoose.Schema({
     
 },{timestamps:true})
 
-const REQBOOK=mongoose.model("REQBOOK",reqBookSchema)
-module.exports=REQBOOK
+const HISTORY=mongoose.model("HISTORY",historySchema)
+module.exports=HISTORY

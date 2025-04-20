@@ -61,8 +61,12 @@ class HistoryTab extends StatelessWidget {
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text("Asked by: ${allReq["studentEmail"]}"),
-                      trailing:
-                          Icon(Icons.circle, color: statusColor, size: 18),
+                      trailing: InkWell(
+                          onTap: () {
+                            _showDialog(context, allReq);
+                          },
+                          child: Icon(Icons.more_vert,
+                              color: statusColor, size: 18)),
                     ),
                   );
                 },
@@ -70,6 +74,54 @@ class HistoryTab extends StatelessWidget {
             },
           );
         },
+      ),
+    );
+  }
+
+  void _showDialog(BuildContext context, data) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(data["bookName"]),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(data["studentEmail"] ?? "N/A"),
+            Text(data["createdAt"] ?? "N/A"),
+            Text("Book Publisher: ${data["bookPublisher"] ?? "N/A"}"),
+            Text("Book Price: ${data["bookPrice"] ?? "N/A"}"),
+            Text("Book Edition: ${data["bookEdition"] ?? "N/A"}"),
+            Text("Published Year: ${data["bookPublishedYear"] ?? "N/A"}"),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Close"),
+          ),
+          Consumer<AppController>(
+            builder: (context, value, child) {
+              final String reqId = data["_id"]; // or use a unique ID you have
+              final bool isReturned = value.isReturned(reqId);
+              final String status = data["status"] ?? "pending";
+
+              // Only show "Return" button if status is 'accepted' and not already returned
+              if (status != "accepted" || isReturned) {
+                return const SizedBox(); // empty widget if conditions not met
+              }
+
+              return TextButton(
+                onPressed: () {
+                  value.increaseBookcountFromBookCollection(data["bookId"]);
+                  value.markReturned(reqId);
+                  Navigator.pop(context);
+                },
+                child: const Text("Return"),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

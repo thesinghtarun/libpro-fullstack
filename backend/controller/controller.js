@@ -228,7 +228,8 @@ const reqBookController = async (req, res) => {
       days,
     })
     const reqBookData = await reqBook.save()
-    res.status(200).json({ msg: "Request sent", "reqBookData": reqBookData })
+    const historyData=await history.save()
+    res.status(200).json({ msg: "Request sent", "reqBookData": reqBookData ,"history":historyData})
   } catch (error) {
     res.status(500).json({ msg: error })
   }
@@ -482,7 +483,6 @@ const StudentBookReport = async (req, res) => {
   const { addedBy } = req.body;
   try {
     const studentReport = await REQBOOK.find({ addedBy });
-
     if (studentReport.length === 0) {
       return res.status(404).json({ msg: "No Details found" });
     }
@@ -492,6 +492,24 @@ const StudentBookReport = async (req, res) => {
     res.status(500).json({ msg: error.message });
   }
 }
+
+//increase book count
+const increaseBookCountController = async (req, res) => {
+  const { bookId } = req.body
+  try {
+    const book = await BOOK.findById(bookId)
+    if (!book) {
+      return res.status(404).json({ msg: "Book Not found" })
+    }
+    
+      book.bookCount += 1;
+      await book.save();
+      return res.status(200).json({ message: 'Book count increased by 1', count: book.bookCount });
+   
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
 
 //exporting
 module.exports = {
@@ -517,5 +535,6 @@ module.exports = {
   showALLReqController,
   showReportController,
   bookUpdateController,
-  StudentBookReport
+  StudentBookReport,
+  increaseBookCountController
 }

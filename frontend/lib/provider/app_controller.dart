@@ -850,6 +850,52 @@ class AppController extends ChangeNotifier {
     }
   }
 
+  //to increase book count
+  Future<void> increaseBookcountFromBookCollection(String bookId) async {
+    var uri = "${api}api/increaseBookCountController";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"bookId": bookId});
+
+    print("➡️ Sending request to $url with bookId: $bookId");
+
+    try {
+      var res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: data,
+      );
+
+      print("📦 Response status: ${res.statusCode}");
+      print("📦 Response body: ${res.body}");
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        print("✅ Book count increased successfully");
+      } else {
+        print("❌ Failed to increase book count");
+      }
+    } catch (e) {
+      print("🔥 Exception: $e");
+    }
+  }
+
+  //to mark as returned
+  final Set<String> _returnedRequests = {};
+
+  bool isReturned(String id) {
+    return _returnedRequests.contains(id);
+  }
+
+  void markReturned(String id) {
+    _returnedRequests.add(id);
+    notifyListeners();
+  }
+
+  // optional: for refresh
+  void clearReturned() {
+    _returnedRequests.clear();
+    notifyListeners();
+  }
+
   //reset everything for new login
   void logoutToReset() {
     loggedInUserEmail = null;
@@ -860,6 +906,7 @@ class AppController extends ChangeNotifier {
     allReqAccptedByStudent = null;
     reportData = null;
     studentReport = null;
+    clearReturned();
     setIndex(0);
 
     notifyListeners();

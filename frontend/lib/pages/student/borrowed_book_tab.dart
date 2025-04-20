@@ -38,22 +38,21 @@ class _BorrowedBookTabState extends State<BorrowedBookTab> {
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "assets/images/book_animated.png",
-                  height: MediaQuery.of(context).size.height / 2,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                const Text(
-                  "No requested book found",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                ),
-              ],
-            ));
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    "assets/images/book_animated.png",
+                    height: MediaQuery.of(context).size.height / 2,
+                  ),
+                  const SizedBox(height: 5),
+                  const Text(
+                    "No requested book found",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                  ),
+                ],
+              ),
+            );
           }
 
           var data = snapshot.data!;
@@ -123,7 +122,7 @@ class _TimerCardState extends State<TimerCard> {
     super.initState();
     _timeLeft = _calculateTimeLeft();
 
-    // Use periodic updates every minute instead of every second
+    // Update every minute
     _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
       setState(() {
         _timeLeft = _calculateTimeLeft();
@@ -148,7 +147,6 @@ class _TimerCardState extends State<TimerCard> {
     return endDate.difference(now);
   }
 
-  /// ✅ Fixed date parsing
   String getDate() {
     try {
       DateTime dateTime = DateTime.parse(widget.acceptedDate);
@@ -161,9 +159,20 @@ class _TimerCardState extends State<TimerCard> {
     }
   }
 
+  String getExpiryDateTime() {
+    try {
+      DateTime startDate = DateTime.parse(widget.acceptedDate);
+      DateTime endDate = startDate.add(Duration(days: widget.days));
+      return "${endDate.day.toString().padLeft(2, '0')}-${endDate.month.toString().padLeft(2, '0')}-${endDate.year} "
+          "${endDate.hour.toString().padLeft(2, '0')}:${endDate.minute.toString().padLeft(2, '0')}";
+    } catch (e) {
+      return "Invalid Date";
+    }
+  }
+
   String _formatDuration(Duration duration) {
     if (duration == Duration.zero) {
-      return "Time expired";
+      return "Expired at: ${getExpiryDateTime()}";
     }
     int days = duration.inDays;
     int hours = duration.inHours % 24;
@@ -174,15 +183,18 @@ class _TimerCardState extends State<TimerCard> {
 
   void _showDialog(BuildContext context) {
     String date = getDate();
+    String expiry = getExpiryDateTime();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(widget.bookName),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Accepted date: $date"),
+            Text("Expires on: $expiry"),
             Text("Book Publisher: ${widget.publisher}"),
             Text("Book Price: ${widget.price}"),
             Text("Book Edition: ${widget.edition}"),
@@ -193,6 +205,10 @@ class _TimerCardState extends State<TimerCard> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text("Close"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Return"),
           ),
         ],
       ),

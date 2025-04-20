@@ -112,6 +112,7 @@ class ProfileTab extends StatelessWidget {
                         visible:
                             value.loggedUserRole == "Librarian" ? true : false,
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             OutlinedButton(
                                 onPressed: () {
@@ -132,6 +133,9 @@ class ProfileTab extends StatelessWidget {
                                   }
                                 },
                                 child: const Text("Show Most Req Book")),
+                            const SizedBox(
+                              width: 20,
+                            ),
                             OutlinedButton(
                                 onPressed: () => Navigator.push(
                                     context,

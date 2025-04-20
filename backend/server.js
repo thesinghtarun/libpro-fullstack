@@ -26,7 +26,8 @@ const {
   showALLReqController,
   showReportController,
   bookUpdateController,
-  StudentBookReport
+  StudentBookReport,
+  increaseBookCountController
 } = require("./controller/controller");
 const app = express();
 
@@ -120,3 +121,6 @@ app.post("/api/bookUpdateController",bookUpdateController);
 
 //to show student and book report Route
 app.post("/api/studentBookReportController",StudentBookReport);
+
+//to increase book count Route
+app.post("/api/increaseBookCountController",increaseBookCountController);
