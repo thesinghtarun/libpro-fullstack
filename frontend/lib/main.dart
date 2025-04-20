@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
       create: (context) => AppController(),
       child:  Consumer<AppController>(
         builder: (context, value, child) =>  MaterialApp(
+          debugShowCheckedModeBanner: false,
            theme: ThemeData.light(),
             darkTheme: ThemeData.dark(),
             themeMode: value.themeMode,

@@ -24,7 +24,9 @@ const {
   searchBookController,
   mostReqBookController,
   showALLReqController,
-  showReportController
+  showReportController,
+  bookUpdateController,
+  StudentBookReport
 } = require("./controller/controller");
 const app = express();
 
@@ -112,3 +114,9 @@ app.post("/api/showALLReqController",showALLReqController);
 
 //to fetch most req book Route
 app.post("/api/showReportController",showReportController);
+
+//to update book details Route
+app.post("/api/bookUpdateController",bookUpdateController);
+
+//to show student and book report Route
+app.post("/api/studentBookReportController",StudentBookReport);

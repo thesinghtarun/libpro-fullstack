@@ -49,11 +49,9 @@ class BookDetails extends StatelessWidget {
                             value: value.isBookAvailable,
                             activeColor: Colors.green,
                             onChanged: (val) async {
-                              
                               value.toggleBookAvailablity();
 
-                              await value.updateAvailablityInDb(
-                                context,
+                              await value.updateAvailablityInDb(context,
                                   bookData["_id"], value.isBookAvailable);
                             }),
                       )
@@ -190,7 +188,40 @@ class BookDetails extends StatelessWidget {
                       onPressed: () {
                         value.loggedUserRole == "Student"
                             ? showOptionDialog(context, value)
-                            : print("Admin");
+                            : value.updateBookDetails(
+                                context,
+                                bookData["_id"] ?? "", // Ensure non-null ID
+                                bookNameController.text.isEmpty
+                                    ? bookData["bookName"] ?? ""
+                                    : bookNameController.text.trim(),
+                                bookCategoryController.text.isEmpty
+                                    ? bookData["bookCategory"] ?? ""
+                                    : bookCategoryController.text.trim(),
+                                int.tryParse(bookCountController.text.isEmpty
+                                        ? bookData["bookCount"]?.toString() ??
+                                            "0"
+                                        : bookCountController.text.trim()) ??
+                                    0,
+                                bookPublisherController.text.isEmpty
+                                    ? bookData["bookPublisher"] ?? ""
+                                    : bookPublisherController.text.trim(),
+                                bookEditionController.text.isEmpty
+                                    ? bookData["bookEdition"] ?? ""
+                                    : bookEditionController.text.trim(),
+                                int.tryParse(bookPriceController.text.isEmpty
+                                        ? bookData["bookPrice"]?.toString() ??
+                                            "0"
+                                        : bookPriceController.text.trim()) ??
+                                    0,
+                                int.tryParse(
+                                        bookPublishedYearController.text.isEmpty
+                                            ? bookData["bookPublishedYear"]
+                                                    ?.toString() ??
+                                                "0"
+                                            : bookPublishedYearController.text
+                                                .trim()) ??
+                                    0,
+                              );
                       },
                       child: Text(value.loggedUserRole == "Librarian"
                           ? "Update"

@@ -4,6 +4,7 @@ import 'package:libpro/pages/common/authentication/login_screen.dart';
 import 'package:libpro/pages/common/toggle_theme.dart';
 import 'package:libpro/pages/common/show_all_request.dart';
 import 'package:libpro/pages/librarian/functionality/show_report.dart';
+import 'package:libpro/pages/librarian/functionality/show_students_report.dart';
 import 'package:libpro/provider/app_controller.dart';
 import 'package:provider/provider.dart';
 
@@ -110,25 +111,36 @@ class ProfileTab extends StatelessWidget {
                     Visibility(
                         visible:
                             value.loggedUserRole == "Librarian" ? true : false,
-                        child: OutlinedButton(
-                            onPressed: () {
-                              value.showReport(
-                                  context, value.loggedInUserEmail);
-                              if (value.reportData.isNotEmpty) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => ShowReport(
-                                      addedBy: value.loggedInUserEmail,
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                UiHelper.showSnackbar(
-                                    context, "No report data found");
-                              }
-                            },
-                            child: const Text("Show Report"))),
+                        child: Row(
+                          children: [
+                            OutlinedButton(
+                                onPressed: () {
+                                  value.showReport(
+                                      context, value.loggedInUserEmail);
+                                  if (value.reportData.isNotEmpty) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ShowReport(
+                                          addedBy: value.loggedInUserEmail,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    UiHelper.showSnackbar(
+                                        context, "No report data found");
+                                  }
+                                },
+                                child: const Text("Show Most Req Book")),
+                            OutlinedButton(
+                                onPressed: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const ShowStudentsReport())),
+                                child: const Text("Show Report")),
+                          ],
+                        )),
                     const SizedBox(
                       height: 10,
                     ),

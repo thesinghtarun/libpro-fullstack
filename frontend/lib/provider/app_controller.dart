@@ -761,39 +761,94 @@ class AppController extends ChangeNotifier {
 
   //to show report of most requested book to librarian
   var reportData;
-Future<void> showReport( BuildContext context,String addedBy) async {
-  loading();
-  var uri = "${api}api/showReportController";
-  var url = Uri.parse(uri);
-  var data = jsonEncode({"addedBy": addedBy});
-
-  try {
-    var res = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: data,
-    );
-
+  Future<void> showReport(BuildContext context, String addedBy) async {
     loading();
-    if (res.statusCode == 200) {
-      var report = jsonDecode(res.body);
-      reportData = report["data"];
-      
-      if (reportData.isEmpty) {
-        UiHelper.showSnackbar(context, "No report data found");
-      } else {
-        print("Report data: $reportData");  // Debugging
-      }
-    } else if (res.statusCode == 404) {
-      UiHelper.showSnackbar(context, "No reports found");
-    } else {
-      UiHelper.showSnackbar(context, "Failed to fetch report: ${res.body}");
-    }
-  } catch (e) {
-    UiHelper.showSnackbar(context, "Error: $e");
-  }
-}
+    var uri = "${api}api/showReportController";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"addedBy": addedBy});
 
+    try {
+      var res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: data,
+      );
+
+      loading();
+      if (res.statusCode == 200) {
+        var report = jsonDecode(res.body);
+        reportData = report["data"];
+
+        if (reportData.isEmpty) {
+          UiHelper.showSnackbar(context, "No report data found");
+        } else {
+          print("Report data: $reportData"); // Debugging
+        }
+      } else if (res.statusCode == 404) {
+        UiHelper.showSnackbar(context, "No reports found");
+      } else {
+        UiHelper.showSnackbar(context, "Failed to fetch report: ${res.body}");
+      }
+    } catch (e) {
+      UiHelper.showSnackbar(context, "Error: $e");
+    }
+  }
+
+//to update book details by librarian
+  Future<void> updateBookDetails(
+      BuildContext context,
+      String bookId,
+      String bookName,
+      String bookCategory,
+      int bookCount,
+      String bookPublisher,
+      String bookEdition,
+      int bookPrice,
+      int bookPublishedYear) async {
+    var data = jsonEncode({
+      "bookId": bookId,
+      "bookName": bookName,
+      "bookCategory": bookCategory,
+      "bookCount": bookCount,
+      "bookPublisher": bookPublisher,
+      "bookEdition": bookEdition,
+      "bookPrice": bookPrice,
+      "bookPublishedYear": bookPublishedYear
+    });
+    var uri = "${api}api/bookUpdateController";
+    var url = Uri.parse(uri);
+    try {
+      var res = await http.post(url,
+          headers: {"Content-Type": "application/json"}, body: data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        var book = jsonDecode(res.body);
+        print(book);
+        UiHelper.showSnackbar(context, "Updated successfully");
+      } else {
+        UiHelper.showSnackbar(context, "msg");
+      }
+    } catch (e) {
+      UiHelper.showSnackbar(context, e.toString());
+    }
+  }
+
+  //to show librarian report about student and books
+  var studentReport;
+  Future<void> showStudentLibrarianReport(String addedBy) async {
+    var uri = "${api}api/studentBookReportController/";
+    var url = Uri.parse(uri);
+    var data = jsonEncode({"addedBy": addedBy});
+    var res = await http.post(url,
+        headers: {"Content-Type": "application/json"}, body: data);
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      var studentData = jsonDecode(res.body);
+      studentReport = studentData;
+      print("studenttyttttttttt" + studentData);
+      notifyListeners();
+    } else {
+      print("object...............");
+    }
+  }
 
   //reset everything for new login
   void logoutToReset() {
@@ -804,6 +859,7 @@ Future<void> showReport( BuildContext context,String addedBy) async {
     allCategoryData = null;
     allReqAccptedByStudent = null;
     reportData = null;
+    studentReport = null;
     setIndex(0);
 
     notifyListeners();

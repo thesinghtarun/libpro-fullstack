@@ -452,6 +452,46 @@ const showReportController = async (req, res) => {
   }
 };
 
+//to update book details Controller
+const bookUpdateController=async (req,res)=>{
+  const {bookId,bookName,bookCategory,bookCount,bookPublisher,bookEdition,bookPrice,bookPublishedYear}=req.body
+  try {
+    
+    const bookDetails=await BOOK.findOne({_id:bookId})
+   if(!bookDetails){
+    res.status(404).json({msg:"Book not found"})
+   }
+   const updatedBook=await BOOK.findOneAndUpdate({_id:bookId},{
+    bookName,
+    bookCategory,
+    bookCount,
+    bookPublisher,
+    bookEdition,
+    bookPrice,
+    bookPublishedYear,
+   })
+   res.status(200).json({msg:"Book updated successfully",updatedBook})
+  } catch (error) {
+    res.status(500).json({msg:error})
+  }
+}
+
+
+//to show report for books Controller
+const StudentBookReport = async (req, res) => {
+  const { addedBy } = req.body;
+  try {
+    const studentReport = await REQBOOK.find({ addedBy });
+
+    if (studentReport.length === 0) {
+      return res.status(404).json({ msg: "No Details found" });
+    }
+
+    res.status(200).json({ studentReport });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+}
 
 //exporting
 module.exports = {
@@ -475,5 +515,7 @@ module.exports = {
   searchBookController,
   mostReqBookController,
   showALLReqController,
-  showReportController
+  showReportController,
+  bookUpdateController,
+  StudentBookReport
 }

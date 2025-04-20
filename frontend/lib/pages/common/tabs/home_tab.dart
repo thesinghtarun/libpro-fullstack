@@ -47,7 +47,8 @@ class HomeTab extends StatelessWidget {
                 flex: 1,
                 child: FutureBuilder<List>(
                   future: value.loggedUserRole == "Librarian"
-                      ? value.showAllStudents(context) // Fetch students if Librarian
+                      ? value.showAllStudents(
+                          context) // Fetch students if Librarian
                       : value.showAllBooks(context), // Fetch books if Student
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -88,10 +89,10 @@ class HomeTab extends StatelessWidget {
                                   builder: (_) =>
                                       value.loggedUserRole == "Librarian"
                                           ? StudentDetails(
-                                              studentData: data,
+                                              studentData: item,
                                             )
                                           : BookDetails(
-                                              bookData: data,
+                                              bookData: item,
                                             ))),
                           child: Container(
                             width: MediaQuery.of(context).size.width * 0.75,
